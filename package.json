@@ -20,16 +20,27 @@
     ]
   },
   "dependencies": {
+    "@ant-design/icons": "^4.0.0",
     "@ant-design/pro-layout": "^5.0.12",
+    "@ant-design/pro-table": "^2.4.1",
     "@umijs/preset-react": "1.x",
     "@umijs/test": "^3.2.14",
+    "ahooks": "^2.0.1",
+    "classnames": "^2.2.6",
+    "crypto-js": "^4.0.0",
     "lint-staged": "^10.0.7",
+    "moment": "^2.24.0",
+    "numeral": "^2.0.6",
     "prettier": "^1.19.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-router": "^4.3.1",
     "umi": "^3.2.14",
-    "yorkie": "^2.0.0",
-    "ahooks": "^2.0.1",
-    "@ant-design/pro-table": "^2.4.1"
+    "umi-request": "^1.0.0",
+    "yorkie": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^3.1.47",
+    "@umijs/preset-ui": "^2.2.6"
   }
 }
