@@ -84,7 +84,7 @@ export default () => {
       setFields(res.data);
     };
 
-    const props = {
+    const props: any = {
       name: 'file',
       accept: '.doc,.docx',
       fileList,
@@ -190,6 +190,7 @@ export default () => {
           <Form.Item
             name="describe"
             style={fields.length === 0 ? { display: 'none' } : {}}
+            rules={[{ required: true, message: '请输入备注!' }]}
           >
             <Input.TextArea style={{ height: 100 }} placeholder="请输入备注" />
           </Form.Item>
@@ -200,24 +201,23 @@ export default () => {
               align="start"
             >
               <Form.Item
-                {...field}
                 name={'key_' + index}
                 initialValue={field}
-                rules={[{ required: true, message: 'Missing first name' }]}
+                rules={[{ required: true }]}
               >
                 <Input placeholder="key" disabled />
               </Form.Item>
               <Form.Item
                 name={'name_' + index}
-                rules={[{ required: true, message: 'Missing last name' }]}
+                rules={[{ required: true, message: '请输入名称' }]}
               >
                 <Input placeholder="请输入名称" />
               </Form.Item>
               <Form.Item
                 name={'type_' + index}
-                rules={[{ required: true, message: 'Missing last name' }]}
+                rules={[{ required: true, message: '请选择类型' }]}
               >
-                <Select defaultValue="string">
+                <Select placeholder="请选择类型">
                   <Option value="string">文字</Option>
                   <Option value="number">数字</Option>
                   <Option value="text">文本</Option>
