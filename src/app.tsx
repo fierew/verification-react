@@ -18,6 +18,11 @@ export const layout = {
         icon: <StarOutlined />,
         path: '/template',
       },
+      {
+        name: '鉴定日志',
+        icon: <StarOutlined />,
+        path: '/verification',
+      },
     ];
 
     return menus;

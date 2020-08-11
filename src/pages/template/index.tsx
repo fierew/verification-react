@@ -1,298 +1,175 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Card,
-  List,
-  Button,
-  Input,
-  Upload,
-  message,
-  Space,
-  Form,
-  Checkbox,
-  Select,
-  PageHeader,
-  Tooltip,
-  Dropdown,
-  Menu,
-} from 'antd';
-import {
-  EditOutlined,
-  EllipsisOutlined,
-  SettingOutlined,
-  InboxOutlined,
-  MinusCircleOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
-import { useParams, history } from 'umi';
-import CryptoJS from 'crypto-js';
+import React from 'react';
+import { Button, Input, Form, Table, Col, Row, Popconfirm, Space } from 'antd';
+import { history } from 'umi';
 import request from '@/utils/request';
-import { useRequest } from 'ahooks';
+import { useAntdTable } from 'ahooks';
+import { PaginatedParams } from 'ahooks/lib/useAntdTable';
+import { Link } from 'umi';
+import moment from 'moment';
+import { PlusOutlined } from '@ant-design/icons';
 
-const { Meta } = Card;
-const { Search } = Input;
-const { Dragger } = Upload;
-const { Option } = Select;
+interface Item {
+  name: string;
+  describe: string;
+  create_time: string;
+  update_time: string;
+}
+
+interface Result {
+  total: number;
+  list: Item[];
+}
+
+const getTableData = (
+  { current, pageSize }: PaginatedParams[0],
+  formData: Object,
+): Promise<Result> => {
+  let query = `page=${current}&pageSize=${pageSize}`;
+  Object.entries(formData).forEach(([key, value]) => {
+    if (value) {
+      query += `&${key}=${value}`;
+    }
+  });
+  return request(`/template/getList?${query}`).then(res => ({
+    total: res.data.total,
+    list: res.data.list,
+  }));
+};
 
 export default () => {
-  const [tmpList, setTmpList] = useState([]);
-  const [fileList, setFileList] = useState([]);
-  const [fields, setFields] = useState([]);
-  const [fileId, setFileId] = useState(0);
+  const [form] = Form.useForm();
 
-  useEffect(() => {
-    request('/template/getList?page=1&pageSize=10').then(res => {
-      setTmpList(res.data);
-    });
-  }, []);
-  const { type, id } = useParams();
-  console.log(type);
-  console.log(id);
+  const { tableProps, search } = useAntdTable(getTableData, {
+    defaultPageSize: 5,
+    form,
+  });
 
-  if (type === 'add') {
-    const analysisDoc = async (filePath: any) => {
-      // 解析docx
-      const res = await request(`/template/analysis?filePath=${filePath}`);
-      console.log(res);
-      if (res.code !== 200) {
-        message.error(res.msg);
-      }
+  const { type, changeType, submit, reset } = search;
 
-      setFields(res.data);
-    };
-
-    const props: any = {
-      name: 'file',
-      accept: '.doc,.docx',
-      fileList,
-      headers: {
-        Authorization: sessionStorage.getItem('Authorization'),
-      },
-      action: 'http://localhost:8080/file/upload',
-      data(file: any) {
-        return new Promise(resolve => {
-          let reader = new FileReader();
-          reader.readAsArrayBuffer(file);
-          reader.onload = () => {
-            const wordArray = CryptoJS.lib.WordArray.create(reader.result);
-            const hash = CryptoJS.SHA256(wordArray).toString();
-            console.log(hash);
-            resolve({ hash });
-          };
-        });
-      },
-      onRemove: (file: { url: any }) => {
-        setFields([]);
-        setFileId(0);
-      },
-      onChange(info: {
-        file: { name?: any; status?: any; response?: any };
-        fileList: any;
-      }) {
-        let fileList = [...info.fileList];
-
-        fileList = fileList.slice(-1);
-
-        fileList = fileList.map(file => {
-          if (file.response) {
-            file.url = file.response.url;
-          }
-          return file;
-        });
-
-        // @ts-ignore
-        setFileList(fileList);
-
-        const { status, response } = info.file;
-        if (status !== 'uploading') {
-          console.log(info.file, info.fileList);
-        }
-        if (status === 'done') {
-          if (response.code != 200) {
-            message.error(response.msg);
-          } else {
-            message.success(`${info.file.name} file uploaded successfully.`);
-            if (response.data.path) {
-              setFileId(response.data.id);
-              analysisDoc(response.data.path);
-            }
-          }
-        } else if (status === 'error') {
-          message.error(`${info.file.name} file upload failed.`);
-        }
-      },
-    };
-
-    const onFinish = async (values: any) => {
-      let params = [];
-      for (var i = 0; i < fields.length; i++) {
-        params.push({
-          key: values['key_' + i],
-          name: values['name_' + i],
-          type: values['type_' + i],
-          isNull: values['isNull_' + i] ? 1 : 0,
-        });
-      }
-
-      const data = {
-        name: values.name,
-        describe: values.describe,
-        fileId: fileId,
-        params: JSON.stringify(params),
-      };
-      const res = await request('/template/add', {
-        method: 'POST',
-        data,
-      });
-      console.log(res);
-    };
-
-    return (
-      <PageHeader
-        onBack={() => {
-          setFields([]);
-          setFileId(0);
-          setFileList([]);
-          window.history.back();
-        }}
-        title="返回"
-      >
-        <Dragger {...props}>
-          <p className="ant-upload-drag-icon">
-            <InboxOutlined />
-          </p>
-          <p className="ant-upload-text">单击或拖动文件到此区域以上载</p>
-          <p className="ant-upload-hint">仅支持docx文件上传。</p>
-        </Dragger>
-        <Form onFinish={onFinish} style={{ marginTop: 20 }}>
-          <Form.Item
-            style={fields.length === 0 ? { display: 'none' } : {}}
-            name="name"
-            rules={[{ required: true, message: '请输入模板名称!' }]}
-          >
-            <Input size="large" placeholder="模板名称" />
-          </Form.Item>
-          <Form.Item
-            name="describe"
-            style={fields.length === 0 ? { display: 'none' } : {}}
-            rules={[{ required: true, message: '请输入备注!' }]}
-          >
-            <Input.TextArea style={{ height: 100 }} placeholder="请输入备注" />
-          </Form.Item>
-          {fields.map((field, index) => (
-            <Space
-              key={index}
-              style={{ display: 'flex', marginBottom: 8 }}
-              align="start"
-            >
-              <Form.Item
-                name={'key_' + index}
-                initialValue={field}
-                rules={[{ required: true }]}
-              >
-                <Input placeholder="key" disabled />
-              </Form.Item>
-              <Form.Item
-                name={'name_' + index}
-                rules={[{ required: true, message: '请输入名称' }]}
-              >
-                <Input placeholder="请输入名称" />
-              </Form.Item>
-              <Form.Item
-                name={'type_' + index}
-                initialValue="text"
-                rules={[{ required: true, message: '请选择类型' }]}
-              >
-                <Select placeholder="请选择类型">
-                  <Option value="text">文本</Option>
-                  <Option value="number">数字</Option>
-                </Select>
-              </Form.Item>
-              <Form.Item name={'isNull_' + index} valuePropName="checked">
-                <Checkbox>是否必填</Checkbox>
-              </Form.Item>
-            </Space>
-          ))}
-          <Form.Item style={fields.length === 0 ? { display: 'none' } : {}}>
-            <Button type="primary" htmlType="submit">
-              提交
+  const advanceSearchForm = (
+    <div>
+      <Form form={form}>
+        <Row gutter={24}>
+          <Col span={8}>
+            <Form.Item label="名称" name="name">
+              <Input placeholder="名称" />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row>
+          <Form.Item style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Button type="primary" onClick={submit}>
+              搜索
+            </Button>
+            <Button onClick={reset} style={{ marginLeft: 16 }}>
+              重置
+            </Button>
+            <Button type="link" onClick={changeType}>
+              简单搜索
             </Button>
           </Form.Item>
-        </Form>
-      </PageHeader>
-    );
-  } else {
-    const menu = (
-      <Menu>
-        <Menu.Item>
-          <a target="_blank" rel="noopener noreferrer">
-            下载模板
-          </a>
-        </Menu.Item>
-        <Menu.Item>
-          <a target="_blank" rel="noopener noreferrer">
-            删除模板
-          </a>
-        </Menu.Item>
-      </Menu>
-    );
+        </Row>
+      </Form>
+    </div>
+  );
 
-    return (
-      <div style={{ margin: 10 }}>
-        <Button type="primary" onClick={() => history.push('/template/add')}>
-          添加模板
+  const searchFrom = (
+    <div>
+      <Form form={form} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Form.Item name="name">
+          <Input.Search
+            placeholder="搜索名称"
+            style={{ width: 240 }}
+            onSearch={submit}
+          />
+        </Form.Item>
+        <Button type="link" onClick={changeType}>
+          高级搜索
         </Button>
-        <Search
-          style={{ width: 250, float: 'right' }}
-          placeholder="input search text"
-          onSearch={value => console.log(value)}
-          enterButton
-        />
-        <List
-          style={{ marginTop: 20 }}
-          grid={{
-            gutter: 16,
-            xs: 1,
-            sm: 2,
-            md: 3,
-            lg: 4,
-            xl: 5,
-            xxl: 5,
-          }}
-          dataSource={tmpList}
-          pagination={{
-            onChange: page => {
-              console.log(page);
-            },
-            pageSize: 10,
-          }}
-          renderItem={(item: any) => (
-            <List.Item>
-              <Card
-                hoverable
-                cover={
-                  <img
-                    alt="example"
-                    src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-                  />
-                }
-                actions={[
-                  <Tooltip title="编辑模板">
-                    <SettingOutlined key="setting" />
-                  </Tooltip>,
-                  <Tooltip title="使用模板">
-                    <EditOutlined key="edit" />
-                  </Tooltip>,
-                  <Dropdown overlay={menu} placement="topCenter" arrow>
-                    <EllipsisOutlined key="ellipsis" />
-                  </Dropdown>,
-                ]}
-              >
-                <Meta title={item.name} description={item.describe} />
-              </Card>
-            </List.Item>
-          )}
-        />
-      </div>
-    );
-  }
+      </Form>
+    </div>
+  );
+
+  const columns: any[] = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      width: 80,
+      ellipsis: true,
+    },
+    {
+      title: '名称',
+      dataIndex: 'name',
+      key: 'name',
+      width: 100,
+      ellipsis: true,
+    },
+    {
+      title: 'describe',
+      dataIndex: 'describe',
+      key: 'describe',
+      width: 100,
+      ellipsis: true,
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'create_time',
+      key: 'create_time',
+      width: 100,
+      ellipsis: true,
+      render: (text: number) => {
+        return <span>{moment(text * 1000).format('YYYY-MM-DD hh:mm:ss')}</span>;
+      },
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'update_time',
+      key: 'update_time',
+      width: 100,
+      ellipsis: true,
+      render: (text: number) => {
+        console.log(text);
+        return <span>{moment(text * 1000).format('YYYY-MM-DD HH:mm:ss')}</span>;
+      },
+    },
+    {
+      title: '操作',
+      key: 'operate',
+      fixed: 'right',
+      width: 110,
+      render: (text: any, record: { status: number; id: number }) => {
+        return (
+          <Space size="middle">
+            <Link to={`/template/edit/${record.id}`}>编辑</Link>
+            <Link to={'/template/'}>下载</Link>
+            <Popconfirm title="是否删除模板?">
+              <a style={{ color: 'red' }}>删除</a>
+            </Popconfirm>
+          </Space>
+        );
+      },
+    },
+  ];
+
+  return (
+    <div style={{ padding: 12 }}>
+      <Button
+        type="primary"
+        icon={<PlusOutlined />}
+        onClick={() => {
+          history.push('/template/add');
+        }}
+      >
+        添加模板
+      </Button>
+      {type === 'simple' ? searchFrom : advanceSearchForm}
+      <Table
+        columns={columns}
+        rowKey="id"
+        {...tableProps}
+        scroll={{ x: '100%' }}
+      />
+    </div>
+  );
 };

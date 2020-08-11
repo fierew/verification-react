@@ -54,6 +54,7 @@ const request = extend({
 
 // request拦截器, 改变url 或 options.
 request.interceptors.request.use((url, options) => {
+  console.log(12345678);
   let data = options.data;
   let headers = options.headers;
 
@@ -91,7 +92,10 @@ request.interceptors.request.use((url, options) => {
 request.interceptors.response.use((response, options) => {
   switch (response.status) {
     case 401:
-      history.push('/user/login');
+      sessionStorage.setItem('email', '');
+      sessionStorage.setItem('userId', '');
+      sessionStorage.setItem('Authorization', '');
+      history.push('/login');
       break;
     case 403:
       history.push('/403');
