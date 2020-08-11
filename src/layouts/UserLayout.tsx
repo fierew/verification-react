@@ -13,9 +13,9 @@ export default (props: { userContent: any }) => {
         <div className={styles.top}>
           <div className={styles.header}>
             <img alt="logo" className={styles.logo} src={logo} />
-            <span className={styles.title}>博客</span>
+            <span className={styles.title}>管理平台</span>
           </div>
-          <div className={styles.desc}>博客后台管理系统</div>
+          <div className={styles.desc}>计量器具检定管理平台</div>
         </div>
         {userContent}
       </div>

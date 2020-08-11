@@ -10,6 +10,10 @@ import {
   Form,
   Checkbox,
   Select,
+  PageHeader,
+  Tooltip,
+  Dropdown,
+  Menu,
 } from 'antd';
 import {
   EditOutlined,
@@ -22,47 +26,28 @@ import {
 import { useParams, history } from 'umi';
 import CryptoJS from 'crypto-js';
 import request from '@/utils/request';
+import { useRequest } from 'ahooks';
 
 const { Meta } = Card;
 const { Search } = Input;
 const { Dragger } = Upload;
 const { Option } = Select;
 
-const data = [
-  {
-    title: 'Title 1',
-  },
-  {
-    title: 'Title 2',
-  },
-  {
-    title: 'Title 3',
-  },
-  {
-    title: 'Title 4',
-  },
-  {
-    title: 'Title 4',
-  },
-  {
-    title: 'Title 4',
-  },
-  {
-    title: 'Title 4',
-  },
-  {
-    title: 'Title 4',
-  },
-];
-
 export default () => {
+  const [tmpList, setTmpList] = useState([]);
   const [fileList, setFileList] = useState([]);
   const [fields, setFields] = useState([]);
   const [fileId, setFileId] = useState(0);
 
+  useEffect(() => {
+    request('/template/getList?page=1&pageSize=10').then(res => {
+      setTmpList(res.data);
+    });
+  }, []);
   const { type, id } = useParams();
   console.log(type);
   console.log(id);
+
   if (type === 'add') {
     const analysisDoc = async (filePath: any) => {
       // 解析docx
@@ -72,15 +57,6 @@ export default () => {
         message.error(res.msg);
       }
 
-      // let valus: any = { params: [] }
-      // res.data.map((key: string) => {
-      //     valus.params.push({
-      //         key: key,
-      //         name: '',
-      //         type: '',
-      //         isNull: '',
-      //     })
-      // })
       setFields(res.data);
     };
 
@@ -89,8 +65,7 @@ export default () => {
       accept: '.doc,.docx',
       fileList,
       headers: {
-        Authorization:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1OTcwMzI3OTgsInVzZXJJZCI6MX0.oHBcqFRBA5s_87inEKNYDLOi7QNPowroA37LYp0XgLo',
+        Authorization: sessionStorage.getItem('Authorization'),
       },
       action: 'http://localhost:8080/file/upload',
       data(file: any) {
@@ -124,6 +99,7 @@ export default () => {
           return file;
         });
 
+        // @ts-ignore
         setFileList(fileList);
 
         const { status, response } = info.file;
@@ -171,7 +147,15 @@ export default () => {
     };
 
     return (
-      <div style={{ margin: 10 }}>
+      <PageHeader
+        onBack={() => {
+          setFields([]);
+          setFileId(0);
+          setFileList([]);
+          window.history.back();
+        }}
+        title="返回"
+      >
         <Dragger {...props}>
           <p className="ant-upload-drag-icon">
             <InboxOutlined />
@@ -215,12 +199,12 @@ export default () => {
               </Form.Item>
               <Form.Item
                 name={'type_' + index}
+                initialValue="text"
                 rules={[{ required: true, message: '请选择类型' }]}
               >
                 <Select placeholder="请选择类型">
-                  <Option value="string">文字</Option>
-                  <Option value="number">数字</Option>
                   <Option value="text">文本</Option>
+                  <Option value="number">数字</Option>
                 </Select>
               </Form.Item>
               <Form.Item name={'isNull_' + index} valuePropName="checked">
@@ -234,60 +218,81 @@ export default () => {
             </Button>
           </Form.Item>
         </Form>
+      </PageHeader>
+    );
+  } else {
+    const menu = (
+      <Menu>
+        <Menu.Item>
+          <a target="_blank" rel="noopener noreferrer">
+            下载模板
+          </a>
+        </Menu.Item>
+        <Menu.Item>
+          <a target="_blank" rel="noopener noreferrer">
+            删除模板
+          </a>
+        </Menu.Item>
+      </Menu>
+    );
+
+    return (
+      <div style={{ margin: 10 }}>
+        <Button type="primary" onClick={() => history.push('/template/add')}>
+          添加模板
+        </Button>
+        <Search
+          style={{ width: 250, float: 'right' }}
+          placeholder="input search text"
+          onSearch={value => console.log(value)}
+          enterButton
+        />
+        <List
+          style={{ marginTop: 20 }}
+          grid={{
+            gutter: 16,
+            xs: 1,
+            sm: 2,
+            md: 3,
+            lg: 4,
+            xl: 5,
+            xxl: 5,
+          }}
+          dataSource={tmpList}
+          pagination={{
+            onChange: page => {
+              console.log(page);
+            },
+            pageSize: 10,
+          }}
+          renderItem={(item: any) => (
+            <List.Item>
+              <Card
+                hoverable
+                cover={
+                  <img
+                    alt="example"
+                    src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
+                  />
+                }
+                actions={[
+                  <Tooltip title="编辑模板">
+                    <SettingOutlined key="setting" />
+                  </Tooltip>,
+                  <Tooltip title="使用模板">
+                    <EditOutlined key="edit" />
+                  </Tooltip>,
+                  <Dropdown overlay={menu} placement="topCenter" arrow>
+                    <EllipsisOutlined key="ellipsis" />
+                  </Dropdown>,
+                ]}
+              >
+                <Meta title={item.name} description={item.describe} />
+              </Card>
+            </List.Item>
+          )}
+        />
       </div>
     );
   }
-
-  return (
-    <div style={{ margin: 10 }}>
-      <Button type="primary" onClick={() => history.push('/template/add')}>
-        添加模板
-      </Button>
-      <Search
-        style={{ width: 250, float: 'right' }}
-        placeholder="input search text"
-        onSearch={value => console.log(value)}
-        enterButton
-      />
-      <List
-        style={{ marginTop: 20 }}
-        grid={{
-          gutter: 16,
-          xs: 1,
-          sm: 2,
-          md: 3,
-          lg: 4,
-          xl: 5,
-          xxl: 5,
-        }}
-        dataSource={data}
-        pagination={{
-          onChange: page => {
-            console.log(page);
-          },
-          pageSize: 10,
-        }}
-        renderItem={item => (
-          <List.Item>
-            <Card
-              hoverable
-              cover={
-                <img
-                  alt="example"
-                  src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-                />
-              }
-              actions={[
-                <SettingOutlined key="setting" />,
-                <EditOutlined key="edit" />,
-                <EllipsisOutlined key="ellipsis" />,
-              ]}
-            >
-              <Meta title="Card title" description="This is the description" />
-            </Card>
-          </List.Item>
-        )}
-      />
-    </div>
-  );
 };

@@ -6,14 +6,14 @@ export default defineConfig({
     type: 'none',
   },
   dynamicImport: {
-    loading: '@/loading'
+    loading: '@/loading',
   },
   history: { type: 'hash' },
   publicPath: '/',
   runtimePublicPath: true,
   layout: {
-    name: 'Ant Design',
+    name: '计量器具检定管理',
     locale: true,
   },
-  routes: routes
+  routes: routes,
 });
