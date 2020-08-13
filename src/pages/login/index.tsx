@@ -15,8 +15,10 @@ import { useRequest } from 'ahooks';
 
 export default () => {
   const [rememberPwd, setRememberPwd] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState(localStorage.getItem('email') ?? '');
+  const [password, setPassword] = useState(
+    localStorage.getItem('password') ?? '',
+  );
   const { initialState, loading, error, refresh, setInitialState } = useModel(
     '@@initialState',
   );
@@ -24,12 +26,8 @@ export default () => {
   useEffect(() => {
     const checked =
       localStorage.getItem('rememberPwd') === 'true' ? true : false;
-    if (checked) {
-      setEmail(localStorage.getItem('email') ?? '');
-      setPassword(localStorage.getItem('password') ?? '');
-    }
     setRememberPwd(checked);
-  });
+  }, []);
 
   const checkboxOnChange = (e: {
     target: { checked: React.SetStateAction<boolean> };
@@ -70,22 +68,22 @@ export default () => {
       <Form onFinish={onFinish}>
         <Form.Item
           name="email"
+          initialValue={email}
           rules={[{ required: true, message: '请输入你的邮箱!' }]}
         >
           <Input
             size="large"
-            value={email}
             prefix={<UserOutlined style={{ color: 'rgb(24, 144, 255)' }} />}
             placeholder="用户名/邮箱"
           />
         </Form.Item>
         <Form.Item
           name="password"
+          initialValue={password}
           rules={[{ required: true, message: '请输入密码!' }]}
         >
           <Input.Password
             size="large"
-            value={password}
             prefix={<LockOutlined style={{ color: 'rgb(24, 144, 255)' }} />}
             placeholder="密码"
           />

@@ -150,7 +150,10 @@ export default () => {
       <div style={loading ? {} : { display: 'none' }}>
         <Loading spinning={loading} />
       </div>
-      <Form onFinish={onFinish} style={{ marginTop: 20 }}>
+      <Form
+        onFinish={onFinish}
+        style={{ marginTop: 20, maxWidth: 800, margin: 'auto' }}
+      >
         <Form.Item
           style={fields.length === 0 ? { display: 'none' } : {}}
           name="name"
@@ -192,6 +195,8 @@ export default () => {
               <Select placeholder="请选择类型">
                 <Option value="text">文本</Option>
                 <Option value="number">数字</Option>
+                <Option value="date">时间</Option>
+                <Option value="text_area">长文本</Option>
               </Select>
             </Form.Item>
             <Form.Item name={'isNull_' + index} valuePropName="checked">

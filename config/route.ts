@@ -23,7 +23,7 @@ export const routes: IBestAFSRoute[] = [
     component: '@/pages/template/add',
   },
   {
-    path: '/template/edit/:id?',
+    path: '/template/edit/:id',
     exact: true,
     component: '@/pages/template/edit',
   },
@@ -34,7 +34,7 @@ export const routes: IBestAFSRoute[] = [
     component: '@/pages/verification',
   },
   {
-    path: '/verification/add',
+    path: '/verification/add/:id',
     exact: true,
     component: '@/pages/verification/add',
   },
