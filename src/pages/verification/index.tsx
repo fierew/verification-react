@@ -277,7 +277,12 @@ export default () => {
 
   return (
     <div style={{ padding: 12 }}>
-      <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+      <Button
+        style={{ marginBottom: 15 }}
+        type="primary"
+        icon={<PlusOutlined />}
+        onClick={showModal}
+      >
         添加鉴定
       </Button>
       {modal}
