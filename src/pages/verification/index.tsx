@@ -124,7 +124,7 @@ export default () => {
           .split('=')[1]
           .replace(/"/g, '');
 
-        link.download = fileName ?? `${name}.docx`;
+        link.download = decodeURI(fileName) ?? `${name}.docx`;
         link.href = URL.createObjectURL(blob);
 
         document.body.appendChild(link);
