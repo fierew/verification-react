@@ -12,10 +12,11 @@ import {
   Spin,
 } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
-import { useParams, history } from 'umi';
+import { history } from 'umi';
 import CryptoJS from 'crypto-js';
 import request from '@/utils/request';
 import Loading from '@/loading';
+import { httpUrl } from '@/utils/config';
 
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -45,7 +46,7 @@ export default () => {
     headers: {
       Authorization: sessionStorage.getItem('Authorization'),
     },
-    action: 'http://localhost:8080/file/upload',
+    action: httpUrl + '/file/upload',
     data(file: any) {
       return new Promise(resolve => {
         let reader = new FileReader();
@@ -112,8 +113,8 @@ export default () => {
     }
 
     const data = {
-      name: values.name,
-      describe: values.describe,
+      name: values.react_umi_name,
+      describe: values.react_umi_describe,
       fileId: fileId,
       params: JSON.stringify(params),
     };
@@ -156,13 +157,13 @@ export default () => {
       >
         <Form.Item
           style={fields.length === 0 ? { display: 'none' } : {}}
-          name="name"
+          name="react_umi_name"
           rules={[{ required: true, message: '请输入模板名称!' }]}
         >
           <Input size="large" placeholder="模板名称" />
         </Form.Item>
         <Form.Item
-          name="describe"
+          name="react_umi_describe"
           style={fields.length === 0 ? { display: 'none' } : {}}
           rules={[{ required: true, message: '请输入备注!' }]}
         >
@@ -195,8 +196,8 @@ export default () => {
               <Select placeholder="请选择类型">
                 <Option value="text">文本</Option>
                 <Option value="number">数字</Option>
-                <Option value="date">时间</Option>
                 <Option value="text_area">长文本</Option>
+                <Option value="date">时间</Option>
               </Select>
             </Form.Item>
             <Form.Item name={'isNull_' + index} valuePropName="checked">

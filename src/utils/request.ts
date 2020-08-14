@@ -2,6 +2,7 @@ import { extend } from 'umi-request';
 import { notification } from 'antd';
 import { history } from 'umi';
 import queryString from 'query-string';
+import { httpUrl } from '@/utils/config';
 
 const codeMessage: { [key: number]: string } = {
   200: '服务器成功返回请求的数据。',
@@ -27,7 +28,6 @@ const codeMessage: { [key: number]: string } = {
 const errorHandler = (error: { response: any }) => {
   const { response } = error;
 
-  console.log(error);
   if (response && response.status) {
     const errorText = codeMessage[response.status] || response.statusText;
     const { status, url } = response;
@@ -54,7 +54,6 @@ const request = extend({
 
 // request拦截器, 改变url 或 options.
 request.interceptors.request.use((url, options) => {
-  console.log(12345678);
   let data = options.data;
   let headers = options.headers;
 
@@ -72,7 +71,7 @@ request.interceptors.request.use((url, options) => {
     data = queryString.stringify(data);
   }
 
-  const c_token = sessionStorage.getItem('Authorization');
+  const c_token = sessionStorage.getItem('Authorization') ?? '';
 
   if (c_token) {
     headers = {
@@ -81,9 +80,8 @@ request.interceptors.request.use((url, options) => {
     };
   }
 
-  console.log(headers);
   return {
-    url: 'http://localhost:8080' + url,
+    url: httpUrl + url,
     options: { ...options, headers: headers, data: data },
   };
 });

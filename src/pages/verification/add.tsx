@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, PageHeader, InputNumber, Button } from 'antd';
+import {
+  Form,
+  Input,
+  PageHeader,
+  InputNumber,
+  Button,
+  DatePicker,
+  message,
+} from 'antd';
 import request from '@/utils/request';
 import { useParams } from 'umi';
+import { history } from '@@/core/history';
 
 interface Params {
   key: string;
@@ -9,6 +18,11 @@ interface Params {
   type: string;
   isNull: number;
 }
+
+const formItemLayout = {
+  labelCol: { span: 6 },
+  wrapperCol: { span: 14 },
+};
 
 export default () => {
   const [templateParams, setTemplateParams] = useState([]);
@@ -22,6 +36,43 @@ export default () => {
     }
   }, []);
 
+  const onFinish = async (values: any) => {
+    const data = {
+      name: values.react_umi_name,
+      describe: values.react_umi_describe,
+      templateId: id,
+      params: '{}',
+    };
+    delete values.react_umi_name;
+    delete values.react_umi_describe;
+
+    let params: { key: string; value: any }[] = [];
+    Object.keys(values).forEach((key: string) => {
+      if (typeof values[key] === 'object') {
+        values[key] = values[key].format('YYYY-MM-DD');
+      }
+
+      params.push({
+        key: key,
+        value: values[key],
+      });
+    });
+
+    data.params = JSON.stringify(params);
+
+    const res = await request('/verification/add', {
+      method: 'POST',
+      data,
+    });
+
+    if (res.code === 200) {
+      message.success('添加鉴定日志成功');
+      history.push('/verification');
+    } else {
+      message.error('添加鉴定日志失败！');
+    }
+  };
+
   return (
     <PageHeader
       onBack={() => {
@@ -29,11 +80,15 @@ export default () => {
       }}
       title="返回"
     >
-      <Form style={{ marginTop: 20, maxWidth: 800, margin: 'auto' }}>
+      <Form
+        onFinish={onFinish}
+        {...formItemLayout}
+        style={{ marginTop: 20, maxWidth: 800 }}
+      >
         <Form.Item
           style={templateParams.length === 0 ? { display: 'none' } : {}}
           label="鉴定名称"
-          name="name"
+          name="react_umi_name"
           rules={[{ required: true, message: '请输入鉴定名称!' }]}
         >
           <Input size="large" placeholder="鉴定名称" />
@@ -41,43 +96,84 @@ export default () => {
         <Form.Item
           style={templateParams.length === 0 ? { display: 'none' } : {}}
           label="备注"
-          name="describe"
+          name="react_umi_describe"
           rules={[{ required: true, message: '请输入备注!' }]}
         >
           <Input.TextArea style={{ height: 100 }} placeholder="请输入备注" />
         </Form.Item>
-        {templateParams.map((item: Params) => {
-          if (item.type === 'number') {
-            return (
-              <Form.Item
-                style={templateParams.length === 0 ? { display: 'none' } : {}}
-                label={item.name}
-                name={item.key}
-                rules={[
-                  {
-                    required: item.isNull === 1,
-                    message: `请输入${item.name}!`,
-                  },
-                ]}
-              >
-                <InputNumber width={200} />
-              </Form.Item>
-            );
+        {templateParams.map((item: Params, index: number) => {
+          switch (item.type) {
+            case 'number':
+              return (
+                <Form.Item
+                  key={index}
+                  label={item.name}
+                  name={item.key}
+                  rules={[
+                    {
+                      required: item.isNull === 1,
+                      message: `请输入${item.name}!`,
+                    },
+                  ]}
+                >
+                  <InputNumber width={200} />
+                </Form.Item>
+              );
+            case 'text_area':
+              return (
+                <Form.Item
+                  key={index}
+                  label={item.name}
+                  name={item.key}
+                  rules={[
+                    {
+                      required: item.isNull === 1,
+                      message: `请输入${item.name}!`,
+                    },
+                  ]}
+                >
+                  <Input.TextArea
+                    style={{ height: 100 }}
+                    placeholder={`请输入${item.name}`}
+                  />
+                </Form.Item>
+              );
+            case 'date':
+              return (
+                <Form.Item
+                  key={index}
+                  label={item.name}
+                  name={item.key}
+                  rules={[
+                    {
+                      required: item.isNull === 1,
+                      message: `请输入${item.name}!`,
+                    },
+                  ]}
+                >
+                  <DatePicker placeholder={`请选择${item.name}`} />
+                </Form.Item>
+              );
+            default:
+              return (
+                <Form.Item
+                  key={index}
+                  label={item.name}
+                  name={item.key}
+                  rules={[
+                    {
+                      required: item.isNull === 1,
+                      message: `请输入${item.name}!`,
+                    },
+                  ]}
+                >
+                  <Input size="large" placeholder={`请输入${item.name}`} />
+                </Form.Item>
+              );
           }
-          return (
-            <Form.Item
-              style={templateParams.length === 0 ? { display: 'none' } : {}}
-              label={item.name}
-              name={item.key}
-              rules={[
-                { required: item.isNull === 1, message: `请输入${item.name}!` },
-              ]}
-            >
-              <Input size="large" placeholder={item.name} />
-            </Form.Item>
-          );
         })}
         <Form.Item
+          wrapperCol={{ span: 12, offset: 6 }}
           style={templateParams.length === 0 ? { display: 'none' } : {}}
         >
           <Button type="primary" htmlType="submit">
