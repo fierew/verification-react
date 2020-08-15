@@ -12,7 +12,10 @@ export default (props: any) => {
         paddingTop: 100,
       }}
     >
-      <Spin size="large" spinning={props.spinning ?? false} />
+      <Spin
+        size="large"
+        spinning={props.spinning === null ? true : props.spinning}
+      />
     </div>
   );
 };

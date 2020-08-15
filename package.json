@@ -40,7 +40,6 @@
     "yorkie": "^2.0.0"
   },
   "devDependencies": {
-    "@types/crypto-js": "^3.1.47",
-    "@umijs/preset-ui": "^2.2.6"
+    "@types/crypto-js": "^3.1.47"
   }
 }
