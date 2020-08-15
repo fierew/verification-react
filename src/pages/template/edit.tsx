@@ -23,6 +23,7 @@ export default () => {
   const [templateInfo, setTemplateInfo] = useState(defTemplateInfo);
   const [templateParams, setTemplateParams] = useState([]);
   const [fields, setFields] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { id } = useParams();
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export default () => {
         setTemplateInfo(res.data);
         setTemplateParams(JSON.parse(res.data.params));
         setFields(res.data.keys.split(','));
+        setLoading(false);
       });
     }
   }, []);
@@ -157,9 +159,9 @@ export default () => {
       }}
       title="返回"
     >
-      {/*<div style={loading ? {} : { display: 'none' }}>*/}
-      {/*  <Loading spinning={loading} />*/}
-      {/*</div>*/}
+      <div style={loading ? {} : { display: 'none' }}>
+        <Loading spinning={loading} />
+      </div>
       {JSON.stringify(templateInfo) !== '{}' ? (
         tempForm(templateInfo, templateParams)
       ) : (

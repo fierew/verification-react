@@ -18,7 +18,6 @@ import { PaginatedParams } from 'ahooks/lib/useAntdTable';
 import request from '@/utils/request';
 import { useAntdTable } from 'ahooks';
 import moment from 'moment';
-import { httpUrl } from '@/utils/config';
 import downloadUtils from '@/utils/downloadUtils';
 
 interface Item {

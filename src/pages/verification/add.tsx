@@ -7,6 +7,8 @@ import {
   Button,
   DatePicker,
   message,
+  Row,
+  Col,
 } from 'antd';
 import request from '@/utils/request';
 import { useParams } from 'umi';
@@ -18,11 +20,6 @@ interface Params {
   type: string;
   isNull: number;
 }
-
-const formItemLayout = {
-  labelCol: { span: 6 },
-  wrapperCol: { span: 14 },
-};
 
 export default () => {
   const [templateParams, setTemplateParams] = useState([]);
@@ -73,6 +70,24 @@ export default () => {
     }
   };
 
+  const formType = (item: any) => {
+    switch (item.type) {
+      case 'number':
+        return <InputNumber size="large" style={{ width: '100%' }} />;
+      case 'text_area':
+        return (
+          <Input.TextArea
+            style={{ height: 100 }}
+            placeholder={`请输入${item.name}`}
+          />
+        );
+      case 'date':
+        return <DatePicker placeholder={`请选择${item.name}`} />;
+      default:
+        return <Input size="large" placeholder={`请输入${item.name}`} />;
+    }
+  };
+
   return (
     <PageHeader
       onBack={() => {
@@ -80,14 +95,10 @@ export default () => {
       }}
       title="返回"
     >
-      <Form
-        onFinish={onFinish}
-        {...formItemLayout}
-        style={{ marginTop: 20, maxWidth: 800 }}
-      >
+      <Form onFinish={onFinish}>
         <Form.Item
           style={templateParams.length === 0 ? { display: 'none' } : {}}
-          label="鉴定名称"
+          label="名称"
           name="react_umi_name"
           rules={[{ required: true, message: '请输入鉴定名称!' }]}
         >
@@ -101,79 +112,26 @@ export default () => {
         >
           <Input.TextArea style={{ height: 100 }} placeholder="请输入备注" />
         </Form.Item>
-        {templateParams.map((item: Params, index: number) => {
-          switch (item.type) {
-            case 'number':
-              return (
-                <Form.Item
-                  key={index}
-                  label={item.name}
-                  name={item.key}
-                  rules={[
-                    {
-                      required: item.isNull === 1,
-                      message: `请输入${item.name}!`,
-                    },
-                  ]}
-                >
-                  <InputNumber width={200} />
-                </Form.Item>
-              );
-            case 'text_area':
-              return (
-                <Form.Item
-                  key={index}
-                  label={item.name}
-                  name={item.key}
-                  rules={[
-                    {
-                      required: item.isNull === 1,
-                      message: `请输入${item.name}!`,
-                    },
-                  ]}
-                >
-                  <Input.TextArea
-                    style={{ height: 100 }}
-                    placeholder={`请输入${item.name}`}
-                  />
-                </Form.Item>
-              );
-            case 'date':
-              return (
-                <Form.Item
-                  key={index}
-                  label={item.name}
-                  name={item.key}
-                  rules={[
-                    {
-                      required: item.isNull === 1,
-                      message: `请输入${item.name}!`,
-                    },
-                  ]}
-                >
-                  <DatePicker placeholder={`请选择${item.name}`} />
-                </Form.Item>
-              );
-            default:
-              return (
-                <Form.Item
-                  key={index}
-                  label={item.name}
-                  name={item.key}
-                  rules={[
-                    {
-                      required: item.isNull === 1,
-                      message: `请输入${item.name}!`,
-                    },
-                  ]}
-                >
-                  <Input size="large" placeholder={`请输入${item.name}`} />
-                </Form.Item>
-              );
-          }
-        })}
+        <Row gutter={24}>
+          {templateParams.map((item: Params, index: number) => (
+            <Col xs={24} sm={12} md={8} lg={8} xl={6} key={index}>
+              <Form.Item
+                key={index}
+                label={item.name}
+                name={item.key}
+                rules={[
+                  {
+                    required: item.isNull === 1,
+                    message: `请输入${item.name}!`,
+                  },
+                ]}
+              >
+                {formType(item)}
+              </Form.Item>
+            </Col>
+          ))}
+        </Row>
         <Form.Item
-          wrapperCol={{ span: 12, offset: 6 }}
           style={templateParams.length === 0 ? { display: 'none' } : {}}
         >
           <Button type="primary" htmlType="submit">
