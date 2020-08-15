@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { PaginatedParams } from 'ahooks/lib/useAntdTable';
 import request from '@/utils/request';
-import { Button, Col, Form, Input, Row, Table } from 'antd';
+import { Button, Col, Form, Input, Row, Select, Table } from 'antd';
 import { useAntdTable } from 'ahooks';
+
+const { Option } = Select;
 
 interface Item {
   name: string;
@@ -16,25 +18,28 @@ interface Result {
   list: Item[];
 }
 
-const getTableData = (
-  { current, pageSize }: PaginatedParams[0],
-  formData: Object,
-): Promise<Result> => {
-  let query = `page=${current}&pageSize=${pageSize}`;
-  Object.entries(formData).forEach(([key, value]) => {
-    if (value) {
-      query += `&${key}=${value}`;
-    }
-  });
-  return request(`/template/getList?${query}`).then(res => ({
-    total: res.data.total,
-    list: res.data.list,
-  }));
-};
-
 export default (props: any) => {
   const [form] = Form.useForm();
-  const { columns, pageSize, rowSelection } = props;
+  const { columns, pageSize, rowSelection, stateCondition, reload } = props;
+
+  const getTableData = (
+    { current, pageSize }: PaginatedParams[0],
+    formData: Object,
+  ): Promise<Result> => {
+    let query = `page=${current}&pageSize=${pageSize}`;
+    if (stateCondition === 1) {
+      query += '&state=1';
+    }
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value) {
+        query += `&${key}=${value}`;
+      }
+    });
+    return request(`/template/getList?${query}`).then(res => ({
+      total: res.data.total,
+      list: res.data.list,
+    }));
+  };
 
   const { tableProps, search } = useAntdTable(getTableData, {
     defaultPageSize: pageSize,
@@ -43,6 +48,10 @@ export default (props: any) => {
 
   const { type, changeType, submit, reset } = search;
 
+  if (reload !== undefined) {
+    reload(submit);
+  }
+
   const advanceSearchForm = (
     <div>
       <Form form={form}>
@@ -50,6 +59,23 @@ export default (props: any) => {
           <Col span={8}>
             <Form.Item label="名称" name="name">
               <Input placeholder="名称" />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item label="备注" name="describe">
+              <Input placeholder="备注" />
+            </Form.Item>
+          </Col>
+          <Col span={8} style={stateCondition == 1 ? { display: 'none' } : {}}>
+            <Form.Item
+              label="状态"
+              name="state"
+              initialValue={stateCondition == 1 ? '1' : ''}
+            >
+              <Select placeholder="请选择状态">
+                <Option value="1">启动</Option>
+                <Option value="0">禁用</Option>
+              </Select>
             </Form.Item>
           </Col>
         </Row>

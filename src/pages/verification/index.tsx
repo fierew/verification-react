@@ -19,6 +19,7 @@ import request from '@/utils/request';
 import { useAntdTable } from 'ahooks';
 import moment from 'moment';
 import { httpUrl } from '@/utils/config';
+import downloadUtils from '@/utils/downloadUtils';
 
 interface Item {
   name: string;
@@ -106,35 +107,7 @@ export default () => {
   );
 
   const download = (id: number, name: string) => {
-    const url = `${httpUrl}/verification/downloads/${id}?runtime=${new Date().getTime()}`;
-    fetch(url, {
-      method: 'GET',
-      headers: {
-        Authorization: sessionStorage.getItem('Authorization') ?? '',
-        'Content-Type': 'application/json;charset=UTF-8',
-      },
-    }).then(res =>
-      res.blob().then((blob: Blob) => {
-        const link = document.createElement('a');
-        link.style.display = 'none';
-
-        const disposition = res.headers.get('Content-disposition') ?? '';
-        const fileName = disposition
-          .split(';')[1]
-          .split('=')[1]
-          .replace(/"/g, '');
-
-        link.download = decodeURI(fileName) ?? `${name}.docx`;
-        link.href = URL.createObjectURL(blob);
-
-        document.body.appendChild(link);
-        link.click();
-
-        // 释放URL对象已经移除a标签
-        URL.revokeObjectURL(link.href);
-        document.body.removeChild(link);
-      }),
-    );
+    downloadUtils(`/verification/downloads/${id}`, name);
   };
 
   const columns: any[] = [
@@ -271,6 +244,7 @@ export default () => {
         columns={tempColumns}
         pageSize={5}
         rowSelection={rowSelection}
+        stateCondition={1}
       />
     </Modal>
   );

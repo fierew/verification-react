@@ -112,7 +112,7 @@ request.interceptors.response.use((response, options) => {
   if (token) {
     sessionStorage.setItem('Authorization', token);
   }
-  console.log(response);
+
   return response;
 });
 
