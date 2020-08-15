@@ -9,7 +9,9 @@ import {
   Checkbox,
   Select,
   PageHeader,
-  Spin,
+  Row,
+  Col,
+  Card,
 } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import { history } from 'umi';
@@ -170,40 +172,46 @@ export default () => {
           <Input.TextArea style={{ height: 100 }} placeholder="请输入备注" />
         </Form.Item>
         {fields.map((field, index) => (
-          <Space
-            key={index}
-            style={{ display: 'flex', marginBottom: 8 }}
-            align="start"
-          >
-            <Form.Item
-              name={'key_' + index}
-              initialValue={field}
-              rules={[{ required: true }]}
-            >
-              <Input placeholder="key" disabled />
-            </Form.Item>
-            <Form.Item
-              name={'name_' + index}
-              rules={[{ required: true, message: '请输入名称' }]}
-            >
-              <Input placeholder="请输入名称" />
-            </Form.Item>
-            <Form.Item
-              name={'type_' + index}
-              initialValue="text"
-              rules={[{ required: true, message: '请选择类型' }]}
-            >
-              <Select placeholder="请选择类型">
-                <Option value="text">文本</Option>
-                <Option value="number">数字</Option>
-                <Option value="text_area">长文本</Option>
-                <Option value="date">时间</Option>
-              </Select>
-            </Form.Item>
-            <Form.Item name={'isNull_' + index} valuePropName="checked">
-              <Checkbox>是否必填</Checkbox>
-            </Form.Item>
-          </Space>
+          <Card>
+            <Row gutter={24}>
+              <Col xs={24} sm={12} md={8} lg={8} xl={6}>
+                <Form.Item
+                  name={'key_' + index}
+                  initialValue={field}
+                  rules={[{ required: true }]}
+                >
+                  <Input placeholder="key" disabled />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={8} lg={8} xl={6}>
+                <Form.Item
+                  name={'name_' + index}
+                  rules={[{ required: true, message: '请输入名称' }]}
+                >
+                  <Input placeholder="请输入名称" />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={8} lg={8} xl={6}>
+                <Form.Item
+                  name={'type_' + index}
+                  initialValue="text"
+                  rules={[{ required: true, message: '请选择类型' }]}
+                >
+                  <Select placeholder="请选择类型">
+                    <Option value="text">文本</Option>
+                    <Option value="number">数字</Option>
+                    <Option value="text_area">长文本</Option>
+                    <Option value="date">时间</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={8} lg={8} xl={6}>
+                <Form.Item name={'isNull_' + index} valuePropName="checked">
+                  <Checkbox>是否必填</Checkbox>
+                </Form.Item>
+              </Col>
+            </Row>
+          </Card>
         ))}
         <Form.Item style={fields.length === 0 ? { display: 'none' } : {}}>
           <Button type="primary" htmlType="submit">

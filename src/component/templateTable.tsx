@@ -56,17 +56,24 @@ export default (props: any) => {
     <div>
       <Form form={form}>
         <Row gutter={24}>
-          <Col span={8}>
+          <Col xs={24} sm={12} md={8} lg={8} xl={6}>
             <Form.Item label="名称" name="name">
               <Input placeholder="名称" />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col xs={24} sm={12} md={8} lg={8} xl={6}>
             <Form.Item label="备注" name="describe">
               <Input placeholder="备注" />
             </Form.Item>
           </Col>
-          <Col span={8} style={stateCondition == 1 ? { display: 'none' } : {}}>
+          <Col
+            xs={24}
+            sm={12}
+            md={8}
+            lg={8}
+            xl={6}
+            style={stateCondition == 1 ? { display: 'none' } : {}}
+          >
             <Form.Item
               label="状态"
               name="state"
