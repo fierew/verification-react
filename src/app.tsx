@@ -2,7 +2,7 @@ import React from 'react';
 import request from '@/utils/request';
 import { UseRequestProvider } from 'ahooks';
 import { history } from 'umi';
-import { StarOutlined, StarFilled, StarTwoTone } from '@ant-design/icons';
+import { StarOutlined } from '@ant-design/icons';
 
 export const layout = {
   logout: () => {
@@ -52,7 +52,6 @@ export async function getInitialState() {
 
 // 在初始加载和路由切换时做一些事情
 export async function onRouteChange({ location, routes, action }: any) {
-  // const initialState = await getInitialState();
   // 获取sessionStorage的用户登录信息
   const token = sessionStorage.getItem('Authorization');
   if (location.pathname !== '/login' && !token) {

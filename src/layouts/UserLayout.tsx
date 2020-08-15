@@ -1,6 +1,5 @@
 import React from 'react';
 import { DefaultFooter } from '@ant-design/pro-layout';
-import { Link } from 'umi';
 import styles from './UserLayout.less';
 import logo from '@/assets/logo.svg';
 
