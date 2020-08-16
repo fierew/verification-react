@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'umi';
+import { useParams, history } from 'umi';
 import request from '@/utils/request';
-import { history } from '@@/core/history';
 import {
   Button,
   Checkbox,

@@ -10,6 +10,7 @@ import {
   Input,
   Space,
   Popconfirm,
+  InputNumber,
 } from 'antd';
 import { history, Link } from 'umi';
 import { PlusOutlined } from '@ant-design/icons';
@@ -23,7 +24,7 @@ import downloadUtils from '@/utils/downloadUtils';
 interface Item {
   name: string;
   describe: string;
-  templateId: number;
+  template_id: number;
   create_time: string;
   update_time: string;
 }
@@ -65,9 +66,19 @@ export default () => {
     <div>
       <Form form={form}>
         <Row gutter={24}>
-          <Col span={8}>
+          <Col xs={24} sm={12} md={8} lg={8} xl={6}>
             <Form.Item label="名称" name="name">
               <Input placeholder="名称" />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={8} xl={6}>
+            <Form.Item label="备注" name="describe">
+              <Input placeholder="备注" />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={8} xl={6}>
+            <Form.Item label="模板ID" name="templateId">
+              <InputNumber placeholder="模板ID" style={{ width: '100%' }} />
             </Form.Item>
           </Col>
         </Row>
@@ -107,6 +118,18 @@ export default () => {
 
   const download = (id: number, name: string) => {
     downloadUtils(`/verification/downloads/${id}`, name);
+  };
+
+  const deleteTable = (id: number) => {
+    request(`/verification/delete/${id}`, {
+      method: 'delete',
+    }).then(res => {
+      if (res.code !== 200) {
+        message.error(res.msg);
+      } else {
+        reset();
+      }
+    });
   };
 
   const columns: any[] = [
@@ -174,7 +197,12 @@ export default () => {
             >
               下载
             </a>
-            <Popconfirm title="是否删除鉴定日志?">
+            <Popconfirm
+              title="是否删除鉴定日志?"
+              onConfirm={() => {
+                deleteTable(record.id);
+              }}
+            >
               <a style={{ color: 'red' }}>删除</a>
             </Popconfirm>
           </Space>

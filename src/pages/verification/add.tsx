@@ -11,8 +11,7 @@ import {
   Col,
 } from 'antd';
 import request from '@/utils/request';
-import { useParams } from 'umi';
-import { history } from '@@/core/history';
+import { useParams, history } from 'umi';
 
 interface Params {
   key: string;
@@ -24,6 +23,11 @@ interface Params {
 export default () => {
   const [templateParams, setTemplateParams] = useState([]);
   const { id } = useParams();
+
+  var reNumber = /^\d+$/;
+  if (!reNumber.test(id)) {
+    history.push('/404');
+  }
 
   useEffect(() => {
     if (id > 0) {

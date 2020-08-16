@@ -23,6 +23,16 @@ export const layout = {
         icon: <StarOutlined />,
         path: '/verification',
       },
+      {
+        name: '登录日志',
+        icon: <StarOutlined />,
+        path: '/log/login',
+      },
+      {
+        name: '操作日志',
+        icon: <StarOutlined />,
+        path: '/log/operate',
+      },
     ];
 
     return menus;
