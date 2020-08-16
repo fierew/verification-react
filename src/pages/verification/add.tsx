@@ -77,7 +77,7 @@ export default () => {
   const formType = (item: any) => {
     switch (item.type) {
       case 'number':
-        return <InputNumber size="large" style={{ width: '100%' }} />;
+        return <InputNumber style={{ width: '100%' }} />;
       case 'text_area':
         return (
           <Input.TextArea
@@ -86,10 +86,51 @@ export default () => {
           />
         );
       case 'date':
-        return <DatePicker placeholder={`请选择${item.name}`} />;
+        return (
+          <DatePicker
+            placeholder={`请选择${item.name}`}
+            style={{ width: '100%' }}
+          />
+        );
       default:
-        return <Input size="large" placeholder={`请输入${item.name}`} />;
+        return <Input placeholder={`请输入${item.name}`} />;
     }
+  };
+
+  const paramsFun = (params: Params[]) => {
+    let paramsFormList: JSX.Element[] = [];
+    params.map((item: Params, index: number) => {
+      const fromItem = (
+        <Form.Item
+          key={index}
+          label={item.name}
+          name={item.key}
+          rules={[
+            {
+              required: item.isNull === 1,
+              message: `请输入${item.name}!`,
+            },
+          ]}
+        >
+          {formType(item)}
+        </Form.Item>
+      );
+      if (item.type === 'text_area') {
+        paramsFormList.push(
+          <Col xs={24} sm={24} md={24} lg={24} xl={24} key={index}>
+            {fromItem}
+          </Col>,
+        );
+      } else {
+        paramsFormList.push(
+          <Col xs={24} sm={12} md={8} lg={8} xl={6} key={index}>
+            {fromItem}
+          </Col>,
+        );
+      }
+    });
+
+    return paramsFormList;
   };
 
   return (
@@ -116,25 +157,7 @@ export default () => {
         >
           <Input.TextArea style={{ height: 100 }} placeholder="请输入备注" />
         </Form.Item>
-        <Row gutter={24}>
-          {templateParams.map((item: Params, index: number) => (
-            <Col xs={24} sm={12} md={8} lg={8} xl={6} key={index}>
-              <Form.Item
-                key={index}
-                label={item.name}
-                name={item.key}
-                rules={[
-                  {
-                    required: item.isNull === 1,
-                    message: `请输入${item.name}!`,
-                  },
-                ]}
-              >
-                {formType(item)}
-              </Form.Item>
-            </Col>
-          ))}
-        </Row>
+        <Row gutter={24}>{paramsFun(templateParams)}</Row>
         <Form.Item
           style={templateParams.length === 0 ? { display: 'none' } : {}}
         >

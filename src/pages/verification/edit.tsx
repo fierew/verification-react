@@ -117,7 +117,7 @@ export default () => {
   const formType = (item: any) => {
     switch (item.type) {
       case 'number':
-        return <InputNumber size="large" style={{ width: '100%' }} />;
+        return <InputNumber style={{ width: '100%' }} />;
       case 'text_area':
         return (
           <Input.TextArea
@@ -128,7 +128,7 @@ export default () => {
       case 'date':
         return <DatePicker placeholder={`请选择${item.name}`} />;
       default:
-        return <Input size="large" placeholder={`请输入${item.name}`} />;
+        return <Input placeholder={`请输入${item.name}`} />;
     }
   };
 
