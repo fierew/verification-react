@@ -12,6 +12,7 @@ import {
   Col,
   Select,
   Card,
+  Empty,
 } from 'antd';
 import Loading from '@/loading';
 
@@ -79,7 +80,6 @@ export default () => {
         style={{ marginTop: 20, maxWidth: 800, margin: 'auto' }}
       >
         <Form.Item
-          style={templateParams.length === 0 ? { display: 'none' } : {}}
           name="react_umi_name"
           initialValue={templateInfo.name}
           rules={[{ required: true, message: '请输入模板名称!' }]}
@@ -89,7 +89,6 @@ export default () => {
         <Form.Item
           name="react_umi_describe"
           initialValue={templateInfo.describe}
-          style={templateParams.length === 0 ? { display: 'none' } : {}}
           rules={[{ required: true, message: '请输入备注!' }]}
         >
           <Input.TextArea style={{ height: 100 }} placeholder="请输入备注" />
@@ -141,9 +140,7 @@ export default () => {
             </Row>
           </Card>
         ))}
-        <Form.Item
-          style={templateParams.length === 0 ? { display: 'none' } : {}}
-        >
+        <Form.Item>
           <Button type="primary" htmlType="submit">
             提交
           </Button>
@@ -164,7 +161,7 @@ export default () => {
       {JSON.stringify(templateInfo) !== '{}' ? (
         tempForm(templateInfo, templateParams)
       ) : (
-        <></>
+        <Empty description={false} />
       )}
     </PageHeader>
   );

@@ -9,6 +9,7 @@ import {
   message,
   Row,
   Col,
+  Empty,
 } from 'antd';
 import request from '@/utils/request';
 import { useParams, history } from 'umi';
@@ -140,32 +141,32 @@ export default () => {
       }}
       title="返回"
     >
-      <Form onFinish={onFinish}>
-        <Form.Item
-          style={templateParams.length === 0 ? { display: 'none' } : {}}
-          label="名称"
-          name="react_umi_name"
-          rules={[{ required: true, message: '请输入鉴定名称!' }]}
-        >
-          <Input size="large" placeholder="鉴定名称" />
-        </Form.Item>
-        <Form.Item
-          style={templateParams.length === 0 ? { display: 'none' } : {}}
-          label="备注"
-          name="react_umi_describe"
-          rules={[{ required: true, message: '请输入备注!' }]}
-        >
-          <Input.TextArea style={{ height: 100 }} placeholder="请输入备注" />
-        </Form.Item>
-        <Row gutter={24}>{paramsFun(templateParams)}</Row>
-        <Form.Item
-          style={templateParams.length === 0 ? { display: 'none' } : {}}
-        >
-          <Button type="primary" htmlType="submit">
-            提交
-          </Button>
-        </Form.Item>
-      </Form>
+      {templateParams.length === 0 ? (
+        <Empty description={false} />
+      ) : (
+        <Form onFinish={onFinish}>
+          <Form.Item
+            label="名称"
+            name="react_umi_name"
+            rules={[{ required: true, message: '请输入鉴定名称!' }]}
+          >
+            <Input size="large" placeholder="鉴定名称" />
+          </Form.Item>
+          <Form.Item
+            label="备注"
+            name="react_umi_describe"
+            rules={[{ required: true, message: '请输入备注!' }]}
+          >
+            <Input.TextArea style={{ height: 100 }} placeholder="请输入备注" />
+          </Form.Item>
+          <Row gutter={24}>{paramsFun(templateParams)}</Row>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              提交
+            </Button>
+          </Form.Item>
+        </Form>
+      )}
     </PageHeader>
   );
 };

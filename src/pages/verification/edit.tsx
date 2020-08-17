@@ -9,6 +9,7 @@ import {
   InputNumber,
   DatePicker,
   Button,
+  Empty,
 } from 'antd';
 import { useParams, history } from 'umi';
 import request from '@/utils/request';
@@ -198,9 +199,7 @@ export default () => {
           <Input.TextArea style={{ height: 100 }} placeholder="请输入备注" />
         </Form.Item>
         <Row gutter={24}>{paramsFun(params, tmpParams)}</Row>
-        <Form.Item
-          style={templateParams.length === 0 ? { display: 'none' } : {}}
-        >
+        <Form.Item>
           <Button type="primary" htmlType="submit">
             提交
           </Button>
@@ -219,7 +218,7 @@ export default () => {
       {JSON.stringify(verificationInfo) !== '{}' ? (
         verificationForm(verificationInfo, verificationParams, templateParams)
       ) : (
-        <></>
+        <Empty description={false} />
       )}
     </PageHeader>
   );
