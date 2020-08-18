@@ -11,6 +11,7 @@ export default defineConfig({
   history: { type: 'hash' },
   publicPath:
     'https://cdn.jsdelivr.net/gh/fierew/verification-react-cdn@v1.0.0/',
+  // 'https://purge.jsdelivr.net/gh/fierew/verification-react-cdn@v1.0.0/',
   runtimePublicPath: true,
   layout: {
     name: '计量器具检定管理',
