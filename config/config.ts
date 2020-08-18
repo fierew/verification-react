@@ -9,7 +9,8 @@ export default defineConfig({
     loading: '@/loading',
   },
   history: { type: 'hash' },
-  publicPath: '/',
+  publicPath:
+    'https://cdn.jsdelivr.net/gh/fierew/verification-react-cdn@v1.0.0/',
   runtimePublicPath: true,
   layout: {
     name: '计量器具检定管理',
