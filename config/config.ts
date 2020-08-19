@@ -5,12 +5,13 @@ export default defineConfig({
   nodeModulesTransform: {
     type: 'none',
   },
+  ignoreMomentLocale: true,
   dynamicImport: {
     loading: '@/loading',
   },
   history: { type: 'hash' },
   publicPath:
-    'https://cdn.jsdelivr.net/gh/fierew/verification-react-cdn@v1.0.0/',
+    'https://cdn.jsdelivr.net/gh/fierew/verification-react-cdn@v1.0.2/',
   // 'https://purge.jsdelivr.net/gh/fierew/verification-react-cdn@v1.0.0/',
   runtimePublicPath: true,
   layout: {

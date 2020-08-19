@@ -42,7 +42,6 @@ export default () => {
       localStorage.setItem('password', values.password);
     }
 
-    console.log(values);
     const res = await request('/user/login', {
       method: 'POST',
       data: values,
