@@ -1,4 +1,11 @@
 const type = window.location.protocol;
 const url = window.location.host;
 
-export const httpUrl = type + '//' + url;
+declare global {
+  interface Window {
+    publicPath: string;
+  }
+}
+
+export const httpUrl =
+  window.publicPath === '/' ? 'http://localhost:8080' : type + '//' + url;
