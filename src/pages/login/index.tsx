@@ -15,10 +15,7 @@ import { useRequest } from 'ahooks';
 
 export default () => {
   const [rememberPwd, setRememberPwd] = useState(false);
-  const [email, setEmail] = useState(localStorage.getItem('email') ?? '');
-  const [password, setPassword] = useState(
-    localStorage.getItem('password') ?? '',
-  );
+  const [loginLoading, setLoginLoading] = useState(false);
   const { initialState, loading, error, refresh, setInitialState } = useModel(
     '@@initialState',
   );
@@ -37,6 +34,8 @@ export default () => {
   };
 
   const onFinish = async (values: any) => {
+    setLoginLoading(true);
+
     if (rememberPwd) {
       localStorage.setItem('email', values.email);
       localStorage.setItem('password', values.password);
@@ -49,25 +48,26 @@ export default () => {
 
     if (res.code !== 200) {
       message.error(res.msg);
-      return false;
+    } else {
+      sessionStorage.setItem('email', res.data.email);
+      sessionStorage.setItem('userId', res.data.userId);
+      sessionStorage.setItem('Authorization', res.data.token);
+
+      setInitialState({
+        userid: res.data.userId,
+        name: res.data.email,
+      });
+      history.push('/template');
     }
 
-    sessionStorage.setItem('email', res.data.email);
-    sessionStorage.setItem('userId', res.data.userId);
-    sessionStorage.setItem('Authorization', res.data.token);
-
-    setInitialState({
-      userid: res.data.userId,
-      name: res.data.email,
-    });
-    history.push('/template');
+    setLoginLoading(false);
   };
   const userContent = (
     <div className={styles.pages_user_login_main}>
       <Form onFinish={onFinish}>
         <Form.Item
           name="email"
-          initialValue={email}
+          initialValue={localStorage.getItem('email') ?? ''}
           rules={[{ required: true, message: '请输入你的邮箱!' }]}
         >
           <Input
@@ -78,7 +78,7 @@ export default () => {
         </Form.Item>
         <Form.Item
           name="password"
-          initialValue={password}
+          initialValue={localStorage.getItem('password') ?? ''}
           rules={[{ required: true, message: '请输入密码!' }]}
         >
           <Input.Password
@@ -113,7 +113,7 @@ export default () => {
             忘记密码
           </Link>
           <Button
-            loading={false}
+            loading={loginLoading}
             size="large"
             type="primary"
             htmlType="submit"

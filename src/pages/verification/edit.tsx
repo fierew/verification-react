@@ -56,6 +56,8 @@ export default () => {
   }
 
   useEffect(() => {
+    removeEditLogAndSaveLog();
+
     if (id > 0) {
       request(`/verification/getInfo/${id}`).then(res => {
         if (res.code !== 200) {
@@ -113,6 +115,55 @@ export default () => {
     } else {
       message.error('编辑鉴定日志失败！');
     }
+
+    removeEditLogAndSaveLog();
+  };
+
+  const removeEditLogAndSaveLog = () => {
+    // 删除操作日志记录
+    Object.keys(localStorage).forEach(key => {
+      if (/^verification_edit_log\|.*/.test(key)) {
+        localStorage.removeItem(key);
+      }
+    });
+  };
+
+  const onValuesChange = (
+    changedValues: any,
+    allValues: any,
+    tParams: TmpParams[],
+  ) => {
+    const key = Object.keys(changedValues)[0];
+    const value = Object.values(changedValues)[0];
+
+    const localStorageKey = 'verification_edit_log|' + id + '|' + key;
+
+    let formName = '';
+    if (['react_umi_describe', 'react_umi_name'].indexOf(key) === -1) {
+      tParams.map((item: TmpParams) => {
+        if (item.key === key) {
+          formName = item.name;
+          saveLocalStorage(
+            localStorageKey,
+            '将"' + formName + '"的值修改为"' + value + '"',
+          );
+        }
+      });
+    } else {
+      if (key === 'react_umi_describe') {
+        formName = '鉴定日志备注';
+      } else {
+        formName = '鉴定日志名称';
+      }
+      saveLocalStorage(
+        localStorageKey,
+        '将"' + formName + '"的值修改为"' + value + '"',
+      );
+    }
+  };
+
+  const saveLocalStorage = (key: string, data: string) => {
+    localStorage.setItem(key, data);
   };
 
   const formType = (item: any) => {
@@ -181,7 +232,12 @@ export default () => {
     tmpParams: TmpParams[],
   ) => {
     return (
-      <Form onFinish={onFinish}>
+      <Form
+        onFinish={onFinish}
+        onValuesChange={(changedValues: any, allValues: any) =>
+          onValuesChange(changedValues, allValues, tmpParams)
+        }
+      >
         <Form.Item
           label="名称"
           name="react_umi_name"
