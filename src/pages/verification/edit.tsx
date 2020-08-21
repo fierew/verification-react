@@ -111,20 +111,26 @@ export default () => {
 
     if (res.code === 200) {
       message.success('编辑鉴定日志成功');
+
+      removeEditLogAndSaveLog();
+
       history.push('/verification');
     } else {
       message.error('编辑鉴定日志失败！');
     }
-
-    removeEditLogAndSaveLog();
   };
 
   const removeEditLogAndSaveLog = () => {
+    let logKeys: any = [];
     // 删除操作日志记录
     Object.keys(localStorage).forEach(key => {
       if (/^verification_edit_log\|.*/.test(key)) {
+        logKeys.push(localStorage.getItem(key));
         localStorage.removeItem(key);
       }
+    });
+    Promise.all(logKeys).then(res => {
+      console.log(res);
     });
   };
 
@@ -143,6 +149,12 @@ export default () => {
       tParams.map((item: TmpParams) => {
         if (item.key === key) {
           formName = item.name;
+
+          const data = {
+            verificationId: id,
+            formName: formName,
+            value: value,
+          };
           saveLocalStorage(
             localStorageKey,
             '将"' + formName + '"的值修改为"' + value + '"',

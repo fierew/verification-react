@@ -46,6 +46,8 @@ export default () => {
       data: values,
     });
 
+    setLoginLoading(false);
+
     if (res.code !== 200) {
       message.error(res.msg);
     } else {
@@ -59,8 +61,6 @@ export default () => {
       });
       history.push('/template');
     }
-
-    setLoginLoading(false);
   };
   const userContent = (
     <div className={styles.pages_user_login_main}>
