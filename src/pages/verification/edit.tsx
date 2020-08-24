@@ -30,8 +30,8 @@ interface VerInfo {
   id: number;
   name: string;
   params: string;
-  template_id: number;
-  user_id: number;
+  templateId: number;
+  userId: number;
   describe: string;
 }
 
@@ -48,12 +48,13 @@ export default () => {
     defaultVerificationInfo,
   );
   const [templateParams, setTemplateParams] = useState(defaultTemplateParams);
-  const { id } = useParams();
+  let { id } = useParams();
+  id = parseInt(id);
 
-  var reNumber = /^\d+$/;
-  if (!reNumber.test(id)) {
-    history.push('/404');
-  }
+  // var reNumber = /^\d+$/;
+  // if (!reNumber.test("" + id)) {
+  //   history.push('/404');
+  // }
 
   useEffect(() => {
     removeEditLogAndSaveLog();
@@ -64,18 +65,21 @@ export default () => {
           message.error('服务异常！');
           return;
         }
+
+        if (res.data === undefined) {
+          return;
+        }
+
         setVerificationInfo(res.data);
         setVerificationParams(JSON.parse(res.data.params));
 
-        request(`/template/getInfoById/${res.data.template_id}`).then(
-          tmpRes => {
-            if (tmpRes.code !== 200) {
-              message.error('服务异常！');
-              return;
-            }
-            setTemplateParams(JSON.parse(tmpRes.data.params));
-          },
-        );
+        request(`/template/getInfoById/${res.data.templateId}`).then(tmpRes => {
+          if (tmpRes.code !== 200) {
+            message.error('服务异常！');
+            return;
+          }
+          setTemplateParams(JSON.parse(tmpRes.data.params));
+        });
       });
     }
   }, []);

@@ -80,6 +80,7 @@ export default (props: any) => {
               initialValue={stateCondition == 1 ? '1' : null}
             >
               <Select placeholder="状态">
+                <Option value="">全部</Option>
                 <Option value="1">启动</Option>
                 <Option value="0">禁用</Option>
               </Select>

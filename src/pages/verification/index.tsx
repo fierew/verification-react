@@ -24,9 +24,9 @@ import downloadUtils from '@/utils/downloadUtils';
 interface Item {
   name: string;
   describe: string;
-  template_id: number;
-  create_time: string;
-  update_time: string;
+  templateId: number;
+  createTime: string;
+  updateTime: string;
 }
 
 interface Result {
@@ -156,15 +156,15 @@ export default () => {
     },
     {
       title: '模板ID',
-      dataIndex: 'template_id',
-      key: 'template_id',
+      dataIndex: 'templateId',
+      key: 'templateId',
       width: 100,
       ellipsis: true,
     },
     {
       title: '创建时间',
-      dataIndex: 'create_time',
-      key: 'create_time',
+      dataIndex: 'createTime',
+      key: 'createTime',
       width: 100,
       ellipsis: true,
       render: (text: number) => {
@@ -173,8 +173,8 @@ export default () => {
     },
     {
       title: '更新时间',
-      dataIndex: 'update_time',
-      key: 'update_time',
+      dataIndex: 'updateTime',
+      key: 'updateTime',
       width: 100,
       ellipsis: true,
       render: (text: number) => {
@@ -185,10 +185,11 @@ export default () => {
       title: '操作',
       key: 'operate',
       fixed: 'right',
-      width: 110,
+      width: 120,
       render: (text: any, record: { id: number; name: string }) => {
         return (
           <Space size="middle">
+            <Link to={`/verification/log/${record.id}`}>日志</Link>
             <Link to={`/verification/edit/${record.id}`}>编辑</Link>
             <a
               onClick={() => {

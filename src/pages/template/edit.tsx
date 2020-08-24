@@ -57,7 +57,7 @@ export default () => {
     const data = {
       name: values.react_umi_name,
       describe: values.react_umi_describe,
-      fileId: templateInfo.file_id,
+      fileId: templateInfo.fileId,
       params: JSON.stringify(params),
     };
     const res = await request(`/template/edit/${id}`, {
@@ -94,7 +94,7 @@ export default () => {
           <Input.TextArea style={{ height: 100 }} placeholder="请输入备注" />
         </Form.Item>
         {templateParams.map((field: any, index: number) => (
-          <Card>
+          <Card key={index}>
             <Row gutter={24}>
               <Col xs={24} sm={12} md={8} lg={8} xl={6}>
                 <Form.Item

@@ -1,7 +1,7 @@
 import { extend } from 'umi-request';
 import { notification } from 'antd';
 import { history } from 'umi';
-import queryString from 'query-string';
+// import queryString from 'query-string';
 import { httpUrl } from '@/utils/config';
 
 const codeMessage: { [key: number]: string } = {
@@ -55,7 +55,7 @@ const request = extend({
 // request拦截器, 改变url 或 options.
 request.interceptors.request.use((url, options) => {
   let data = options.data;
-  let headers = options.headers;
+  let headers: any = options.headers;
 
   const isFormData = data instanceof FormData;
   const isObject = data instanceof Object;
@@ -63,12 +63,13 @@ request.interceptors.request.use((url, options) => {
   if (!isFormData && Object.keys(headers ?? {}).length === 0) {
     headers = {
       Accept: 'application/json',
-      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      'Content-Type': 'application/json;charset=UTF-8',
     };
   }
 
   if (isObject && Object.keys(data).length > 0) {
-    data = queryString.stringify(data);
+    data = JSON.stringify(data);
+    // data = queryString.stringify(data);
   }
 
   const c_token = sessionStorage.getItem('Authorization') ?? '';

@@ -23,16 +23,21 @@ interface Params {
 
 export default () => {
   const [templateParams, setTemplateParams] = useState([]);
-  const { id } = useParams();
+  let { id } = useParams();
+  id = parseInt(id);
 
-  var reNumber = /^\d+$/;
-  if (!reNumber.test(id)) {
-    history.push('/404');
-  }
+  // var reNumber = /^\d+$/;
+  // if (!reNumber.test(id)) {
+  //   history.push('/404');
+  // }
 
   useEffect(() => {
     if (id > 0) {
       request(`/template/getInfoById/${id}`).then(res => {
+        if (res.data === undefined) {
+          return;
+        }
+
         setTemplateParams(JSON.parse(res.data.params));
       });
     }

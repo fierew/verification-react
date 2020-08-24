@@ -28,11 +28,11 @@ export const layout = {
         icon: <StarOutlined />,
         path: '/log/login',
       },
-      {
-        name: '操作日志',
-        icon: <StarOutlined />,
-        path: '/log/operate',
-      },
+      // {
+      //   name: '操作日志',
+      //   icon: <StarOutlined />,
+      //   path: '/log/operate',
+      // },
     ];
 
     return menus;
