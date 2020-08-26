@@ -8,11 +8,11 @@ import { Table, PageHeader } from 'antd';
 
 interface Item {
   id: number;
-  verification_id: number;
+  verificationId: number;
   key: string;
-  form_name: string;
-  update_value: string;
-  update_time: number;
+  formName: string;
+  updateValue: string;
+  updateTime: number;
 }
 
 interface Result {
@@ -61,7 +61,7 @@ export default () => {
     },
     {
       title: '鉴定信息ID',
-      dataIndex: 'verification_id',
+      dataIndex: 'verificationId',
       key: 'verification_id',
       width: 50,
       ellipsis: true,
@@ -73,15 +73,15 @@ export default () => {
       render: (text: string, record: any) => {
         return (
           <span>
-            将"{record.form_name}"内容修改为"{record.update_value}"
+            将"{record.formName}"内容修改为"{record.updateValue}"
           </span>
         );
       },
     },
     {
       title: '更新时间',
-      dataIndex: 'update_time',
-      key: 'update_time',
+      dataIndex: 'updateTime',
+      key: 'updateTime',
       width: 100,
       ellipsis: true,
       render: (text: number) => {
