@@ -13,6 +13,7 @@ import {
 } from 'antd';
 import { useParams, history } from 'umi';
 import request from '@/utils/request';
+import moment from 'moment';
 
 interface VerParams {
   key: string;
@@ -33,6 +34,13 @@ interface VerInfo {
   templateId: number;
   userId: number;
   describe: string;
+}
+
+interface LogInfo {
+  verificationId: number;
+  key: string;
+  formName: string;
+  updateValue: string;
 }
 
 const defaultVerificationParams: VerParams[] = [];
@@ -57,7 +65,7 @@ export default () => {
   // }
 
   useEffect(() => {
-    removeEditLogAndSaveLog();
+    removeEditLogAndSaveLog(true);
 
     if (id > 0) {
       request(`/verification/getInfo/${id}`).then(res => {
@@ -84,7 +92,7 @@ export default () => {
     }
   }, []);
 
-  const onFinish = async (values: any) => {
+  const onFinish = (values: any) => {
     const data = {
       name: values.react_umi_name,
       describe: values.react_umi_describe,
@@ -106,35 +114,48 @@ export default () => {
       });
     });
 
-    data.params = JSON.stringify(params);
+    Promise.all(params).then(async params => {
+      data.params = JSON.stringify(params);
 
-    const res = await request(`/verification/edit/${id}`, {
-      method: 'PUT',
-      data,
+      const res = await request(`/verification/edit/${id}`, {
+        method: 'PUT',
+        data,
+      });
+
+      if (res.code === 200) {
+        message.success('编辑鉴定日志成功');
+
+        removeEditLogAndSaveLog(false);
+
+        history.push('/verification');
+      } else {
+        message.error('编辑鉴定日志失败！');
+      }
     });
-
-    if (res.code === 200) {
-      message.success('编辑鉴定日志成功');
-
-      removeEditLogAndSaveLog();
-
-      history.push('/verification');
-    } else {
-      message.error('编辑鉴定日志失败！');
-    }
   };
 
-  const removeEditLogAndSaveLog = () => {
-    let logKeys: any = [];
+  const removeEditLogAndSaveLog = (initialize: boolean) => {
+    let logKeys: LogInfo[] = [];
     // 删除操作日志记录
     Object.keys(localStorage).forEach(key => {
       if (/^verification_edit_log\|.*/.test(key)) {
-        logKeys.push(localStorage.getItem(key));
+        const dataJson: string = localStorage.getItem(key) ?? '';
+        const data: LogInfo = JSON.parse(dataJson);
+        logKeys.push(data);
         localStorage.removeItem(key);
       }
     });
     Promise.all(logKeys).then(res => {
-      console.log(res);
+      if (res.length !== 0) {
+        if (!initialize) {
+          request('/verification/addLog', {
+            method: 'POST',
+            data: {
+              data: res,
+            },
+          });
+        }
+      }
     });
   };
 
@@ -145,6 +166,7 @@ export default () => {
   ) => {
     const key = Object.keys(changedValues)[0];
     const value = Object.values(changedValues)[0];
+    const time = moment().format('X');
 
     const localStorageKey = 'verification_edit_log|' + id + '|' + key;
 
@@ -156,13 +178,12 @@ export default () => {
 
           const data = {
             verificationId: id,
+            key: key,
             formName: formName,
-            value: value,
+            updateValue: value,
+            updateTime: time,
           };
-          saveLocalStorage(
-            localStorageKey,
-            '将"' + formName + '"的值修改为"' + value + '"',
-          );
+          saveLocalStorage(localStorageKey, JSON.stringify(data));
         }
       });
     } else {
@@ -171,10 +192,16 @@ export default () => {
       } else {
         formName = '鉴定日志名称';
       }
-      saveLocalStorage(
-        localStorageKey,
-        '将"' + formName + '"的值修改为"' + value + '"',
-      );
+
+      const data = {
+        verificationId: id,
+        key: key,
+        formName: formName,
+        updateValue: value,
+        updateTime: time,
+      };
+
+      saveLocalStorage(localStorageKey, JSON.stringify(data));
     }
   };
 

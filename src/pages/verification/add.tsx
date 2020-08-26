@@ -43,7 +43,7 @@ export default () => {
     }
   }, []);
 
-  const onFinish = async (values: any) => {
+  const onFinish = (values: any) => {
     const data = {
       name: values.react_umi_name,
       describe: values.react_umi_describe,
@@ -65,19 +65,21 @@ export default () => {
       });
     });
 
-    data.params = JSON.stringify(params);
+    Promise.all(params).then(async params => {
+      data.params = JSON.stringify(params);
 
-    const res = await request('/verification/add', {
-      method: 'POST',
-      data,
+      const res = await request('/verification/add', {
+        method: 'POST',
+        data,
+      });
+
+      if (res.code === 200) {
+        message.success('添加鉴定日志成功');
+        history.push('/verification');
+      } else {
+        message.error('添加鉴定日志失败！');
+      }
     });
-
-    if (res.code === 200) {
-      message.success('添加鉴定日志成功');
-      history.push('/verification');
-    } else {
-      message.error('添加鉴定日志失败！');
-    }
   };
 
   const formType = (item: any) => {
