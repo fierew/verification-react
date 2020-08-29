@@ -49,14 +49,14 @@ export const routes: IBestAFSRoute[] = [
     component: '@/pages/verification/log',
   },
   {
+    path: '/user',
+    exact: true,
+    component: '@/pages/user',
+  },
+  {
     path: '/log/login',
     exact: true,
     component: '@/pages/log/login',
-  },
-  {
-    path: '/log/operate',
-    exact: true,
-    component: '@/pages/log/operate',
   },
   {
     path: '/500',

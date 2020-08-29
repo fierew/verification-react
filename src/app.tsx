@@ -24,6 +24,11 @@ export const layout = {
         path: '/verification',
       },
       {
+        name: '用户管理',
+        icon: <StarOutlined />,
+        path: '/user',
+      },
+      {
         name: '登录日志',
         icon: <StarOutlined />,
         path: '/log/login',
