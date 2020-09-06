@@ -3,11 +3,10 @@ import request from '@/utils/request';
 import { UseRequestProvider } from 'ahooks';
 import { history } from 'umi';
 import { StarOutlined } from '@ant-design/icons';
+import { message } from 'antd';
 
 export const layout = {
   logout: () => {
-    sessionStorage.setItem('email', '');
-    sessionStorage.setItem('userId', '');
     sessionStorage.setItem('Authorization', '');
     history.push('/login');
   },
@@ -56,12 +55,18 @@ export const layout = {
 };
 
 export async function getInitialState() {
-  const email = sessionStorage.getItem('email');
-  const userId = sessionStorage.getItem('userId');
+  // const email = sessionStorage.getItem('email');
+  // const userId = sessionStorage.getItem('userId');
+  const res = await request('/rbac/user/getInfo');
+
+  if (res.code !== 200) {
+    message.error(res.msg);
+    return;
+  }
 
   return {
-    userid: userId,
-    name: email,
+    name: res.data.email,
+    userInfo: res.data,
   };
 }
 

@@ -41,7 +41,7 @@ export default () => {
       localStorage.setItem('password', values.password);
     }
 
-    const res = await request('/user/login', {
+    const res = await request('/rbac/user/login', {
       method: 'POST',
       data: values,
     });
@@ -51,13 +51,11 @@ export default () => {
     if (res.code !== 200) {
       message.error(res.msg);
     } else {
-      sessionStorage.setItem('email', res.data.email);
-      sessionStorage.setItem('userId', res.data.userId);
       sessionStorage.setItem('Authorization', res.data.token);
 
       setInitialState({
-        userid: res.data.userId,
         name: res.data.email,
+        userInfo: res.data,
       });
       history.push('/template');
     }

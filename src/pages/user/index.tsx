@@ -42,7 +42,7 @@ const getTableData = (
       query += `&${key}=${value}`;
     }
   });
-  return request(`/user/getList?${query}`).then(res => ({
+  return request(`/rbac/user/getList?${query}`).then(res => ({
     total: res.data.total,
     list: res.data.list,
   }));
@@ -128,7 +128,7 @@ export default () => {
     addUserform
       .validateFields()
       .then(values => {
-        request('/user/add', {
+        request('/rbac/user/add', {
           method: 'POST',
           data: {
             email: values.email,
