@@ -49,9 +49,29 @@ export const routes: IBestAFSRoute[] = [
     component: '@/pages/verification/log',
   },
   {
-    path: '/user',
+    path: '/rbac',
     exact: true,
-    component: '@/pages/user',
+    redirect: '/rbac/user',
+  },
+  {
+    path: '/rbac/dept',
+    exact: true,
+    component: '@/pages/rbac/dept',
+  },
+  {
+    path: '/rbac/resource',
+    exact: true,
+    component: '@/pages/rbac/resource',
+  },
+  {
+    path: '/rbac/role',
+    exact: true,
+    component: '@/pages/rbac/role',
+  },
+  {
+    path: '/rbac/user',
+    exact: true,
+    component: '@/pages/rbac/user',
   },
   {
     path: '/log/login',

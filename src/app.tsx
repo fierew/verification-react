@@ -23,14 +23,31 @@ export const layout = {
         path: '/verification',
       },
       {
-        name: '用户管理',
+        name: '权限管理',
         icon: <StarOutlined />,
-        path: '/user',
-      },
-      {
-        name: '登录日志',
-        icon: <StarOutlined />,
-        path: '/log/login',
+        path: '/rbac',
+        children: [
+          {
+            name: '机构管理',
+            icon: <StarOutlined />,
+            path: 'dept',
+          },
+          {
+            name: '资源管理',
+            icon: <StarOutlined />,
+            path: 'resource',
+          },
+          {
+            name: '角色管理',
+            icon: <StarOutlined />,
+            path: 'role',
+          },
+          {
+            name: '用户管理',
+            icon: <StarOutlined />,
+            path: 'user',
+          },
+        ],
       },
       // {
       //   name: '操作日志',
