@@ -285,14 +285,10 @@ export default () => {
         onOk={e => editPwd(e)}
         onCancel={e => handleCancel(e)}
       >
-        <Form
-          form={modifyPasswordForm}
-          layout="vertical"
-          name="modify_pwd_form_in_modal"
-        >
+        <Form form={modifyPasswordForm} name="modify_pwd_form_in_modal">
           <Form.Item
             name="password"
-            label="密码"
+            label="用户密码"
             hasFeedback
             rules={[
               {
@@ -341,10 +337,10 @@ export default () => {
         onOk={e => editUser(e)}
         onCancel={e => handleCancel(e)}
       >
-        <Form form={editUserform} layout="vertical" name="user_form_in_modal">
+        <Form form={editUserform} name="edit_form_in_modal">
           <Form.Item
             name="email"
-            label="邮箱"
+            label="电子邮箱"
             hasFeedback
             rules={[
               { type: 'email', message: '输入的电子邮件无效!' },
@@ -355,7 +351,7 @@ export default () => {
           </Form.Item>
           <Form.Item
             name="nickname"
-            label="昵称"
+            label="用户昵称"
             hasFeedback
             rules={[{ required: true, message: '请输入昵称!' }]}
           >
@@ -374,10 +370,10 @@ export default () => {
         onOk={e => addUser(e)}
         onCancel={e => handleCancel(e)}
       >
-        <Form form={addUserform} layout="vertical" name="user_form_in_modal">
+        <Form form={addUserform} name="add_form_in_modal">
           <Form.Item
             name="email"
-            label="邮箱"
+            label="电子邮箱"
             hasFeedback
             rules={[
               { type: 'email', message: '输入的电子邮件无效!' },
@@ -388,7 +384,7 @@ export default () => {
           </Form.Item>
           <Form.Item
             name="nickname"
-            label="昵称"
+            label="用户昵称"
             hasFeedback
             rules={[{ required: true, message: '请输入昵称!' }]}
           >
@@ -396,7 +392,7 @@ export default () => {
           </Form.Item>
           <Form.Item
             name="password"
-            label="密码"
+            label="用户密码"
             hasFeedback
             rules={[
               {

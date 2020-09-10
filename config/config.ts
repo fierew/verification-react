@@ -14,9 +14,16 @@ export default defineConfig({
     'https://cdn.jsdelivr.net/gh/fierew/verification-react-cdn@v1.0.2/',
   // 'https://purge.jsdelivr.net/gh/fierew/verification-react-cdn@v1.0.0/',
   runtimePublicPath: true,
+  locale: {
+    default: 'zh-CN',
+    antd: false,
+    title: false,
+    baseNavigator: true,
+    baseSeparator: '-',
+  },
   layout: {
     name: '计量器具检定管理',
-    locale: true,
+    locale: false,
   },
   routes: routes,
 });
