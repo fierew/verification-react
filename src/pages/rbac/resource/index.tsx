@@ -30,6 +30,7 @@ interface Item {
   type: number;
   key: string;
   path: string;
+  isHide: number;
   remarks: string;
   state: number;
   sort: number;
@@ -116,6 +117,7 @@ export default () => {
           type: values.type,
           key: values.key ?? '',
           icon: '',
+          isHide: values.isHide ? 1 : 0,
         };
 
         request('/rbac/resource/add', {
@@ -151,6 +153,7 @@ export default () => {
           type: values.type,
           key: values.key ?? '',
           icon: '',
+          isHide: values.isHide ? 1 : 0,
         };
 
         request(`/rbac/resource/edit/${values.id}`, {
@@ -191,10 +194,14 @@ export default () => {
   };
 
   const showAddModal = () => {
+    addForm.resetFields();
     setAddVisible(true);
+    setRadio(0);
   };
 
   const showEditModal = (resourceInfo: any) => {
+    addForm.resetFields();
+
     resourceInfo.type = '' + resourceInfo.type;
 
     editForm.setFieldsValue(resourceInfo);
@@ -203,10 +210,12 @@ export default () => {
   };
 
   const showAddChildrenModal = (id: number) => {
+    addForm.resetFields();
     addForm.setFieldsValue({
       parentId: id,
     });
     setAddVisible(true);
+    setRadio(0);
   };
 
   const onChangeRadio = (e: any) => {
@@ -229,16 +238,23 @@ export default () => {
         );
       default:
         return (
-          <>
-            <Form.Item
-              name="path"
-              label="菜单URL"
-              hasFeedback
-              rules={[{ required: true, message: '请输入URL' }]}
-            >
-              <Input placeholder="请输入URL,外部链接请加HTTP://" />
-            </Form.Item>
-          </>
+          <Row gutter={24}>
+            <Col span={16}>
+              <Form.Item
+                name="path"
+                label="菜单URL"
+                hasFeedback
+                rules={[{ required: true, message: '请输入URL' }]}
+              >
+                <Input placeholder="请输入URL,外部链接请加HTTP://" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="isHide" label="隐藏" valuePropName="checked">
+                <Switch />
+              </Form.Item>
+            </Col>
+          </Row>
         );
     }
   };
@@ -296,12 +312,12 @@ export default () => {
           </Form.Item>
           {radioModel(radio)}
           <Row gutter={24}>
-            <Col span={12}>
+            <Col span={16}>
               <Form.Item name="sort" label="排序序号" initialValue="0">
                 <InputNumber />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col span={8}>
               <Form.Item name="state" label="状态" valuePropName="checked">
                 <Switch />
               </Form.Item>
@@ -377,12 +393,12 @@ export default () => {
           </Form.Item>
           {radioModel(radio)}
           <Row gutter={24}>
-            <Col span={12}>
+            <Col span={16}>
               <Form.Item name="sort" label="排序序号" initialValue="0">
                 <InputNumber />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col span={8}>
               <Form.Item name="state" label="状态" valuePropName="checked">
                 <Switch />
               </Form.Item>
@@ -412,19 +428,35 @@ export default () => {
       width: 100,
       ellipsis: true,
     },
-    {
-      title: '图标',
-      dataIndex: 'icon',
-      key: 'icon',
-      width: 100,
-      ellipsis: true,
-    },
+    // {
+    //   title: '图标',
+    //   dataIndex: 'icon',
+    //   key: 'icon',
+    //   width: 100,
+    //   ellipsis: true,
+    // },
     {
       title: '菜单URL',
       dataIndex: 'path',
       key: 'path',
       width: 100,
       ellipsis: true,
+    },
+    {
+      title: '是否隐藏',
+      dataIndex: 'isHide',
+      key: 'isHide',
+      width: 100,
+      ellipsis: true,
+      render: (text: number, record: Item) => {
+        if (record.type == 0) {
+          if (text === 1) {
+            return <span style={{ color: 'red' }}>隐藏</span>;
+          } else {
+            return <span style={{ color: '#4395ff' }}>显示</span>;
+          }
+        }
+      },
     },
     {
       title: '标识组',

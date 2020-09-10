@@ -151,7 +151,7 @@ export default () => {
       title: '备注',
       dataIndex: 'describe',
       key: 'describe',
-      width: 100,
+      width: 200,
       ellipsis: true,
     },
     {
@@ -165,7 +165,7 @@ export default () => {
       title: '创建时间',
       dataIndex: 'createTime',
       key: 'createTime',
-      width: 100,
+      width: 200,
       ellipsis: true,
       render: (text: number) => {
         return <span>{moment(text * 1000).format('YYYY-MM-DD hh:mm:ss')}</span>;
@@ -175,7 +175,7 @@ export default () => {
       title: '更新时间',
       dataIndex: 'updateTime',
       key: 'updateTime',
-      width: 100,
+      width: 200,
       ellipsis: true,
       render: (text: number) => {
         return <span>{moment(text * 1000).format('YYYY-MM-DD HH:mm:ss')}</span>;
