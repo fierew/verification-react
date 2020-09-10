@@ -22,7 +22,7 @@ export default defineConfig({
     baseSeparator: '-',
   },
   layout: {
-    name: '计量器具检定管理',
+    name: '计量器具检定平台',
     locale: false,
   },
   routes: routes,

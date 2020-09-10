@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Table,
@@ -9,14 +9,14 @@ import {
   Col,
   Input,
   Space,
-  Popconfirm,
   TreeSelect,
   Radio,
   InputNumber,
   Switch,
+  Tag,
+  Popconfirm,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { PaginatedParams } from 'ahooks/lib/useAntdTable';
 import request from '@/utils/request';
 import { useAntdTable } from 'ahooks';
 
@@ -44,7 +44,6 @@ interface Result {
 const initResourceLists: Item[] = [];
 
 export default () => {
-  const [form] = Form.useForm();
   const [addForm] = Form.useForm();
   const [editForm] = Form.useForm();
 
@@ -56,14 +55,8 @@ export default () => {
 
   const [treeValue, setTreeValue] = useState({});
 
-  const getTableData = (formData: Object): Promise<Result> => {
-    let query = '';
-    Object.entries(formData).forEach(([key, value]) => {
-      if (value) {
-        query += `&${key}=${value}`;
-      }
-    });
-    return request(`/rbac/resource/getList?${query}`).then(res => {
+  const getTableData = (): Promise<Result> => {
+    return request('/rbac/resource/getList').then(res => {
       if (res.code == 200) {
         setResourceLists(res.data);
         return {
@@ -76,7 +69,9 @@ export default () => {
     });
   };
 
-  const { tableProps, search } = useAntdTable(getTableData, { form });
+  const { tableProps, search } = useAntdTable(getTableData, {
+    defaultPageSize: 10,
+  });
 
   const { type, changeType, submit, reset } = search;
 
@@ -128,8 +123,8 @@ export default () => {
           data: data,
         }).then(res => {
           if (res.code === 200) {
-            addForm.resetFields();
             setAddVisible(false);
+            addForm.resetFields();
             submit();
             message.success(res.msg);
           } else {
@@ -142,11 +137,75 @@ export default () => {
       });
   };
 
+  const editResource = (e: any) => {
+    editForm
+      .validateFields()
+      .then(values => {
+        const data = {
+          name: values.name,
+          parentId: values.parentId,
+          path: values.path ?? '',
+          remarks: values.remarks ?? '',
+          sort: values.sort ?? 0,
+          state: values.state ? 1 : 0,
+          type: values.type,
+          key: values.key ?? '',
+          icon: '',
+        };
+
+        request(`/rbac/resource/edit/${values.id}`, {
+          method: 'PUT',
+          data: data,
+        }).then(res => {
+          if (res.code === 200) {
+            setEditVisible(false);
+            editForm.resetFields();
+            submit();
+            message.success(res.msg);
+          } else {
+            message.error(res.msg);
+          }
+        });
+      })
+      .catch(info => {
+        // console.log('Validate Failed:', info);
+      });
+  };
+
+  const deleteResource = (resourceId: number) => {
+    request(`/rbac/resource/delete/${resourceId}`, {
+      method: 'DELETE',
+    }).then(res => {
+      if (res.code === 200) {
+        submit();
+        message.success(res.msg);
+      } else {
+        message.error(res.msg);
+      }
+    });
+  };
+
   const handleCancel = (e: any) => {
     setAddVisible(false);
+    setEditVisible(false);
   };
 
   const showAddModal = () => {
+    setAddVisible(true);
+  };
+
+  const showEditModal = (resourceInfo: any) => {
+    resourceInfo.type = '' + resourceInfo.type;
+
+    editForm.setFieldsValue(resourceInfo);
+    setEditVisible(true);
+    setRadio(resourceInfo.type);
+  };
+
+  const showAddChildrenModal = (id: number) => {
+    addForm.setFieldsValue({
+      parentId: id,
+    });
     setAddVisible(true);
   };
 
@@ -170,14 +229,16 @@ export default () => {
         );
       default:
         return (
-          <Form.Item
-            name="path"
-            label="菜单URL"
-            hasFeedback
-            rules={[{ required: true, message: '请输入URL' }]}
-          >
-            <Input placeholder="请输入URL,外部链接请加HTTP://" />
-          </Form.Item>
+          <>
+            <Form.Item
+              name="path"
+              label="菜单URL"
+              hasFeedback
+              rules={[{ required: true, message: '请输入URL' }]}
+            >
+              <Input placeholder="请输入URL,外部链接请加HTTP://" />
+            </Form.Item>
+          </>
         );
     }
   };
@@ -255,61 +316,86 @@ export default () => {
     );
   };
 
-  const editModel = () => {};
-
-  const searchFrom = (
-    <div>
-      <Form form={form} style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Form.Item name="name">
-          <Input.Search
-            placeholder="权限名称"
-            style={{ width: 240 }}
-            onSearch={submit}
-          />
-        </Form.Item>
-        <Button type="link" onClick={changeType}>
-          高级搜索
-        </Button>
-      </Form>
-    </div>
-  );
-
-  const advanceSearchForm = (
-    <div>
-      <Form form={form}>
-        <Row gutter={24}>
-          <Col xs={24} sm={12} md={8} lg={8} xl={6}>
-            <Form.Item label="权限名称" name="name">
-              <Input placeholder="权限名称" />
-            </Form.Item>
-          </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={6}>
-            <Form.Item label="权限标识" name="key">
-              <Input placeholder="权限标识" />
-            </Form.Item>
-          </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={6}>
-            <Form.Item label="显示状态" name="state">
-              <Input placeholder="显示状态" />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row>
-          <Form.Item style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button type="primary" onClick={submit}>
-              搜索
-            </Button>
-            <Button onClick={reset} style={{ marginLeft: 16 }}>
-              重置
-            </Button>
-            <Button type="link" onClick={changeType}>
-              简单搜索
-            </Button>
+  const editModel = () => {
+    return (
+      <Modal
+        title="编辑资源"
+        visible={editVisible}
+        onOk={e => editResource(e)}
+        onCancel={e => handleCancel(e)}
+      >
+        <Form form={editForm} name="edit_form_in_modal">
+          <Form.Item
+            name="id"
+            label="ID"
+            initialValue="0"
+            style={{ display: 'none' }}
+          >
+            <InputNumber />
           </Form.Item>
-        </Row>
-      </Form>
-    </div>
-  );
+          <Form.Item
+            label="所属上级"
+            name="parentId"
+            hasFeedback
+            rules={[{ required: true, message: '请选择所属上级!' }]}
+          >
+            <TreeSelect
+              showSearch
+              style={{ width: '100%' }}
+              value={treeValue}
+              dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+              placeholder="请选择所属上级"
+              allowClear
+              treeDefaultExpandAll
+              onChange={onChangeTree}
+            >
+              <TreeNode key={0} value={0} title={'最顶层'}>
+                {parentTree(resourceLists)}
+              </TreeNode>
+            </TreeSelect>
+          </Form.Item>
+          <Form.Item
+            name="name"
+            label="权限名称"
+            hasFeedback
+            rules={[{ required: true, message: '请输入权限名称!' }]}
+          >
+            <Input placeholder="权限名称" />
+          </Form.Item>
+          <Form.Item
+            name="type"
+            label="权限类型"
+            hasFeedback
+            initialValue={'0'}
+            rules={[{ required: true, message: '请选择权限类型!' }]}
+          >
+            <Radio.Group onChange={onChangeRadio}>
+              <Radio value="0">菜单</Radio>
+              <Radio value="1">按钮</Radio>
+              <Radio value="2">接口</Radio>
+            </Radio.Group>
+          </Form.Item>
+          {radioModel(radio)}
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item name="sort" label="排序序号" initialValue="0">
+                <InputNumber />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="state" label="状态" valuePropName="checked">
+                <Switch />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item name="remarks" label="  备注信息">
+            <Input.TextArea placeholder="备注信息" />
+          </Form.Item>
+        </Form>
+      </Modal>
+    );
+  };
 
   const columns: any[] = [
     {
@@ -367,6 +453,21 @@ export default () => {
       key: 'type',
       width: 100,
       ellipsis: true,
+      render: (text: number) => {
+        if (text == 0) {
+          return <Tag color="blue">菜单</Tag>;
+        }
+
+        if (text == 1) {
+          return <Tag color="geekblue">按钮</Tag>;
+        }
+
+        if (text == 2) {
+          return <Tag color="green">接口</Tag>;
+        }
+
+        return <Tag color="red">未知</Tag>;
+      },
     },
     {
       title: '操作',
@@ -376,9 +477,28 @@ export default () => {
       render: (text: any, record: Item) => {
         return (
           <Space size="middle">
-            <a>编辑</a>
-            <a style={{ color: 'red' }}>删除</a>
-            <a>添加子节点</a>
+            <a
+              onClick={() => {
+                showEditModal(record);
+              }}
+            >
+              编辑
+            </a>
+            <Popconfirm
+              title="是否删除资源?"
+              onConfirm={() => {
+                deleteResource(record.id);
+              }}
+            >
+              <a style={{ color: 'red' }}>删除</a>
+            </Popconfirm>
+            <a
+              onClick={() => {
+                showAddChildrenModal(record.id);
+              }}
+            >
+              添加子节点
+            </a>
           </Space>
         );
       },
@@ -397,7 +517,6 @@ export default () => {
       </Button>
       {addModel()}
       {editModel()}
-      {type === 'simple' ? searchFrom : advanceSearchForm}
       <Table
         columns={columns}
         rowKey="id"

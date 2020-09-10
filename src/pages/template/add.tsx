@@ -173,7 +173,7 @@ export default () => {
             <Input.TextArea style={{ height: 100 }} placeholder="请输入备注" />
           </Form.Item>
           {fields.map((field, index) => (
-            <Card>
+            <Card key={index}>
               <Row gutter={24}>
                 <Col xs={24} sm={12} md={8} lg={8} xl={6}>
                   <Form.Item
