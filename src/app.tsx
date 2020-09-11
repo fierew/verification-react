@@ -4,11 +4,20 @@ import { UseRequestProvider } from 'ahooks';
 import { history } from 'umi';
 import { StarOutlined } from '@ant-design/icons';
 import { message } from 'antd';
+import renderRightContent from '@/component/renderRightContent';
+import { ILayoutRuntimeConfig } from '@umijs/plugin-layout/src/types/interface.d';
 
 export const layout = {
   logout: () => {
     sessionStorage.setItem('Authorization', '');
     history.push('/login');
+  },
+  rightRender: (
+    initialState: any,
+    setInitialState: any,
+    runtimeLayout: ILayoutRuntimeConfig,
+  ) => {
+    return renderRightContent(runtimeLayout, initialState, setInitialState);
   },
   patchMenus: (menus: any) => {
     menus = [
