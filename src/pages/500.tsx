@@ -1,5 +1,6 @@
 import { Result, Button } from 'antd';
 import React from 'react';
+import { history } from 'umi';
 
 export default function() {
   return (
@@ -7,7 +8,16 @@ export default function() {
       status="500"
       title="500"
       subTitle="对不起，服务器出错了。"
-      extra={<Button type="primary">返回首页</Button>}
+      extra={
+        <Button
+          type="primary"
+          onClick={() => {
+            history.push('/');
+          }}
+        >
+          返回首页
+        </Button>
+      }
     />
   );
 }
