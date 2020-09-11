@@ -197,111 +197,79 @@ export default () => {
     setAddVisible(true);
   };
 
-  const addModel = () => {
-    return (
-      <Modal
-        title="添加机构"
-        visible={addVisible}
-        onOk={e => addResource(e)}
-        onCancel={e => handleCancel(e)}
+  const formModel = (
+    <>
+      <Form.Item
+        label="所属上级"
+        name="parentId"
+        hasFeedback
+        rules={[{ required: true, message: '请选择所属上级!' }]}
       >
-        <Form {...layout} form={addForm} name="add_form_in_modal">
-          <Form.Item
-            label="所属上级"
-            name="parentId"
-            hasFeedback
-            rules={[{ required: true, message: '请选择所属上级!' }]}
-          >
-            <TreeSelect
-              showSearch
-              style={{ width: '100%' }}
-              value={treeValue}
-              dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-              placeholder="请选择所属上级"
-              allowClear
-              treeDefaultExpandAll
-              onChange={onChangeTree}
-            >
-              <TreeNode key={0} value={0} title={'最顶层'}>
-                {parentTree(deptLists)}
-              </TreeNode>
-            </TreeSelect>
-          </Form.Item>
-          <Form.Item
-            name="name"
-            label="机构名称"
-            hasFeedback
-            rules={[{ required: true, message: '请输入机构名称!' }]}
-          >
-            <Input placeholder="机构名称" />
-          </Form.Item>
-          <Form.Item name="sort" label="排序序号" initialValue="0">
-            <InputNumber />
-          </Form.Item>
-          <Form.Item name="remarks" label="  备注信息">
-            <Input.TextArea placeholder="备注信息" />
-          </Form.Item>
-        </Form>
-      </Modal>
-    );
-  };
+        <TreeSelect
+          showSearch
+          style={{ width: '100%' }}
+          value={treeValue}
+          dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+          placeholder="请选择所属上级"
+          allowClear
+          treeDefaultExpandAll
+          onChange={onChangeTree}
+        >
+          <TreeNode key={0} value={0} title={'最顶层'}>
+            {parentTree(deptLists)}
+          </TreeNode>
+        </TreeSelect>
+      </Form.Item>
+      <Form.Item
+        name="name"
+        label="机构名称"
+        hasFeedback
+        rules={[{ required: true, message: '请输入机构名称!' }]}
+      >
+        <Input placeholder="机构名称" />
+      </Form.Item>
+      <Form.Item name="sort" label="排序序号" initialValue="0">
+        <InputNumber />
+      </Form.Item>
+      <Form.Item name="remarks" label="  备注信息">
+        <Input.TextArea placeholder="备注信息" />
+      </Form.Item>
+    </>
+  );
 
-  const editModel = () => {
-    return (
-      <Modal
-        title="编辑机构"
-        visible={editVisible}
-        onOk={e => editResource(e)}
-        onCancel={e => handleCancel(e)}
-      >
-        <Form {...layout} form={editForm} name="edit_form_in_modal">
-          <Form.Item
-            name="id"
-            label="ID"
-            initialValue="0"
-            style={{ display: 'none' }}
-          >
-            <InputNumber />
-          </Form.Item>
-          <Form.Item
-            label="所属上级"
-            name="parentId"
-            hasFeedback
-            rules={[{ required: true, message: '请选择所属上级!' }]}
-          >
-            <TreeSelect
-              showSearch
-              style={{ width: '100%' }}
-              value={treeValue}
-              dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-              placeholder="请选择所属上级"
-              allowClear
-              treeDefaultExpandAll
-              onChange={onChangeTree}
-            >
-              <TreeNode key={0} value={0} title={'最顶层'}>
-                {parentTree(deptLists)}
-              </TreeNode>
-            </TreeSelect>
-          </Form.Item>
-          <Form.Item
-            name="name"
-            label="机构名称"
-            hasFeedback
-            rules={[{ required: true, message: '请输入机构名称!' }]}
-          >
-            <Input placeholder="机构名称" />
-          </Form.Item>
-          <Form.Item name="sort" label="排序序号" initialValue="0">
-            <InputNumber />
-          </Form.Item>
-          <Form.Item name="remarks" label="  备注信息">
-            <Input.TextArea placeholder="备注信息" />
-          </Form.Item>
-        </Form>
-      </Modal>
-    );
-  };
+  const addModel = (
+    <Modal
+      title="添加机构"
+      visible={addVisible}
+      onOk={e => addResource(e)}
+      onCancel={e => handleCancel(e)}
+    >
+      <Form {...layout} form={addForm} name="add_form_in_modal">
+        {formModel}
+      </Form>
+    </Modal>
+  );
+
+  const editModel = (
+    <Modal
+      title="编辑机构"
+      visible={editVisible}
+      onOk={e => editResource(e)}
+      onCancel={e => handleCancel(e)}
+    >
+      <Form {...layout} form={editForm} name="edit_form_in_modal">
+        <Form.Item
+          name="id"
+          label="ID"
+          initialValue="0"
+          style={{ display: 'none' }}
+        >
+          <InputNumber />
+        </Form.Item>
+        {formModel}
+      </Form>
+    </Modal>
+  );
 
   const columns: any[] = [
     {
@@ -371,8 +339,8 @@ export default () => {
       >
         添加机构
       </Button>
-      {addModel()}
-      {editModel()}
+      {addModel}
+      {editModel}
       <Table
         columns={columns}
         rowKey="id"

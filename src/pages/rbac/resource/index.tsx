@@ -199,10 +199,8 @@ export default () => {
     setRadio(0);
   };
 
-  const showEditModal = (resourceInfo: any) => {
-    addForm.resetFields();
-
-    resourceInfo.type = '' + resourceInfo.type;
+  const showEditModal = (resourceInfo: Item) => {
+    editForm.resetFields();
 
     editForm.setFieldsValue(resourceInfo);
     setEditVisible(true);
@@ -224,8 +222,8 @@ export default () => {
 
   const radioModel = (radioValue: any) => {
     switch (radioValue) {
-      case '1':
-      case '2':
+      case 1:
+      case 2:
         return (
           <Form.Item
             name="key"
@@ -259,159 +257,103 @@ export default () => {
     }
   };
 
-  const addModel = () => {
-    return (
-      <Modal
-        title="添加资源"
-        visible={addVisible}
-        onOk={e => addResource(e)}
-        onCancel={e => handleCancel(e)}
+  const formModel = (
+    <>
+      <Form.Item
+        label="所属上级"
+        name="parentId"
+        hasFeedback
+        rules={[{ required: true, message: '请选择所属上级!' }]}
       >
-        <Form form={addForm} name="add_form_in_modal">
-          <Form.Item
-            label="所属上级"
-            name="parentId"
-            hasFeedback
-            rules={[{ required: true, message: '请选择所属上级!' }]}
-          >
-            <TreeSelect
-              showSearch
-              style={{ width: '100%' }}
-              value={treeValue}
-              dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-              placeholder="请选择所属上级"
-              allowClear
-              treeDefaultExpandAll
-              onChange={onChangeTree}
-            >
-              <TreeNode key={0} value={0} title={'最顶层'}>
-                {parentTree(resourceLists)}
-              </TreeNode>
-            </TreeSelect>
-          </Form.Item>
-          <Form.Item
-            name="name"
-            label="权限名称"
-            hasFeedback
-            rules={[{ required: true, message: '请输入权限名称!' }]}
-          >
-            <Input placeholder="权限名称" />
-          </Form.Item>
-          <Form.Item
-            name="type"
-            label="权限类型"
-            hasFeedback
-            initialValue={'0'}
-            rules={[{ required: true, message: '请选择权限类型!' }]}
-          >
-            <Radio.Group onChange={onChangeRadio}>
-              <Radio value="0">菜单</Radio>
-              <Radio value="1">按钮</Radio>
-              <Radio value="2">接口</Radio>
-            </Radio.Group>
-          </Form.Item>
-          {radioModel(radio)}
-          <Row gutter={24}>
-            <Col span={16}>
-              <Form.Item name="sort" label="排序序号" initialValue="0">
-                <InputNumber />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="state" label="状态" valuePropName="checked">
-                <Switch />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Form.Item name="remarks" label="  备注信息">
-            <Input.TextArea placeholder="备注信息" />
-          </Form.Item>
-        </Form>
-      </Modal>
-    );
-  };
-
-  const editModel = () => {
-    return (
-      <Modal
-        title="编辑资源"
-        visible={editVisible}
-        onOk={e => editResource(e)}
-        onCancel={e => handleCancel(e)}
+        <TreeSelect
+          showSearch
+          style={{ width: '100%' }}
+          value={treeValue}
+          dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+          placeholder="请选择所属上级"
+          allowClear
+          treeDefaultExpandAll
+          onChange={onChangeTree}
+        >
+          <TreeNode key={0} value={0} title={'最顶层'}>
+            {parentTree(resourceLists)}
+          </TreeNode>
+        </TreeSelect>
+      </Form.Item>
+      <Form.Item
+        name="name"
+        label="权限名称"
+        hasFeedback
+        rules={[{ required: true, message: '请输入权限名称!' }]}
       >
-        <Form form={editForm} name="edit_form_in_modal">
-          <Form.Item
-            name="id"
-            label="ID"
-            initialValue="0"
-            style={{ display: 'none' }}
-          >
+        <Input placeholder="权限名称" />
+      </Form.Item>
+      <Form.Item
+        name="type"
+        label="权限类型"
+        hasFeedback
+        initialValue={0}
+        rules={[{ required: true, message: '请选择权限类型!' }]}
+      >
+        <Radio.Group onChange={onChangeRadio}>
+          <Radio value={0}>菜单</Radio>
+          <Radio value={1}>按钮</Radio>
+          <Radio value={2}>接口</Radio>
+        </Radio.Group>
+      </Form.Item>
+      {radioModel(radio)}
+      <Row gutter={24}>
+        <Col span={16}>
+          <Form.Item name="sort" label="排序序号" initialValue="0">
             <InputNumber />
           </Form.Item>
-          <Form.Item
-            label="所属上级"
-            name="parentId"
-            hasFeedback
-            rules={[{ required: true, message: '请选择所属上级!' }]}
-          >
-            <TreeSelect
-              showSearch
-              style={{ width: '100%' }}
-              value={treeValue}
-              dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-              placeholder="请选择所属上级"
-              allowClear
-              treeDefaultExpandAll
-              onChange={onChangeTree}
-            >
-              <TreeNode key={0} value={0} title={'最顶层'}>
-                {parentTree(resourceLists)}
-              </TreeNode>
-            </TreeSelect>
+        </Col>
+        <Col span={8}>
+          <Form.Item name="state" label="状态" valuePropName="checked">
+            <Switch />
           </Form.Item>
-          <Form.Item
-            name="name"
-            label="权限名称"
-            hasFeedback
-            rules={[{ required: true, message: '请输入权限名称!' }]}
-          >
-            <Input placeholder="权限名称" />
-          </Form.Item>
-          <Form.Item
-            name="type"
-            label="权限类型"
-            hasFeedback
-            initialValue={'0'}
-            rules={[{ required: true, message: '请选择权限类型!' }]}
-          >
-            <Radio.Group onChange={onChangeRadio}>
-              <Radio value="0">菜单</Radio>
-              <Radio value="1">按钮</Radio>
-              <Radio value="2">接口</Radio>
-            </Radio.Group>
-          </Form.Item>
-          {radioModel(radio)}
-          <Row gutter={24}>
-            <Col span={16}>
-              <Form.Item name="sort" label="排序序号" initialValue="0">
-                <InputNumber />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="state" label="状态" valuePropName="checked">
-                <Switch />
-              </Form.Item>
-            </Col>
-          </Row>
+        </Col>
+      </Row>
 
-          <Form.Item name="remarks" label="  备注信息">
-            <Input.TextArea placeholder="备注信息" />
-          </Form.Item>
-        </Form>
-      </Modal>
-    );
-  };
+      <Form.Item name="remarks" label="  备注信息">
+        <Input.TextArea placeholder="备注信息" />
+      </Form.Item>
+    </>
+  );
+
+  const addModel = (
+    <Modal
+      title="添加资源"
+      visible={addVisible}
+      onOk={e => addResource(e)}
+      onCancel={e => handleCancel(e)}
+    >
+      <Form form={addForm} name="add_form_in_modal">
+        {formModel}
+      </Form>
+    </Modal>
+  );
+
+  const editModel = (
+    <Modal
+      title="编辑资源"
+      visible={editVisible}
+      onOk={e => editResource(e)}
+      onCancel={e => handleCancel(e)}
+    >
+      <Form form={editForm} name="edit_form_in_modal">
+        <Form.Item
+          name="id"
+          label="ID"
+          initialValue={0}
+          style={{ display: 'none' }}
+        >
+          <InputNumber />
+        </Form.Item>
+        {formModel}
+      </Form>
+    </Modal>
+  );
 
   const columns: any[] = [
     {
@@ -547,8 +489,8 @@ export default () => {
       >
         添加资源
       </Button>
-      {addModel()}
-      {editModel()}
+      {addModel}
+      {editModel}
       <Table
         columns={columns}
         rowKey="id"
