@@ -177,7 +177,18 @@ export default () => {
     setEditVisible(true);
   };
 
-  const deleteResource = (id: number) => {};
+  const deleteResource = (id: number) => {
+    request(`/rbac/dept/delete/${id}`, {
+      method: 'DELETE',
+    }).then(res => {
+      if (res.code === 200) {
+        submit();
+        message.success(res.msg);
+      } else {
+        message.error(res.msg);
+      }
+    });
+  };
 
   const showAddChildrenModal = (id: number) => {
     addForm.setFieldsValue({

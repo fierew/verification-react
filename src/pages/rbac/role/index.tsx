@@ -59,10 +59,6 @@ export default () => {
   const [deptTreeData, setDeptTreeData] = useState([]);
   const [resourceTreeData, setResourceTreeData] = useState([]);
 
-  const [cancelText, setCancelText] = useState('取消');
-  const [okText, setOkText] = useState('下一步');
-  const [current, setCurrent] = useState(0);
-
   useEffect(() => {
     request('/rbac/dept/getAll').then(res => {
       if (res.code == 200) {
@@ -76,29 +72,35 @@ export default () => {
       }
     });
 
-    return componentWillUnmount;
+    // return componentWillUnmount;
   }, []);
 
-  const componentWillUnmount = () => {};
+  // const componentWillUnmount = () => {};
+
+  const getTreeTitle = (type: number) => {
+    let title = '';
+    switch (type) {
+      case 0:
+        title = '(菜单)';
+        break;
+      case 1:
+        title = '(按钮)';
+        break;
+      case 2:
+        title = '(接口)';
+        break;
+      default:
+        title = '(未知)';
+    }
+    return title;
+  };
 
   const childrenTree = (data: any, type: string) => {
     if (data != undefined && data.length > 0) {
       return data.map((item: any) => {
         let title = item.name;
         if (type == 'resource') {
-          switch (item.type) {
-            case 0:
-              title = title + '(菜单)';
-              break;
-            case 1:
-              title = title + '(按钮)';
-              break;
-            case 2:
-              title = title + '(接口)';
-              break;
-            default:
-              title = title + '(未知)';
-          }
+          title += getTreeTitle(item.type);
         }
         return {
           title: title,
@@ -114,19 +116,7 @@ export default () => {
     return data.map((item: any) => {
       let title = item.name;
       if (type == 'resource') {
-        switch (item.type) {
-          case 0:
-            title = title + '(菜单)';
-            break;
-          case 1:
-            title = title + '(按钮)';
-            break;
-          case 2:
-            title = title + '(接口)';
-            break;
-          default:
-            title = title + '(未知)';
-        }
+        title += getTreeTitle(item.type);
       }
 
       return {
@@ -143,57 +133,21 @@ export default () => {
   };
 
   const addResource = (e: any) => {
-    const text = e.target.innerHTML.replace(' ', '');
-
-    const thisCurrent = current + 1;
-    if (thisCurrent <= 2 && thisCurrent >= 0) {
-      addForm
-        .validateFields()
-        .then(values => {
-          console.log(values);
-          setCurrent(thisCurrent);
-          if (thisCurrent == 2) {
-            setOkText('确认');
-          } else {
-            setOkText('下一步');
-          }
-          setCancelText('上一步');
-        })
-        .catch(info => {
-          console.log('Validate Failed:', info);
-        });
-    }
-
-    if (['确认', '<span>确认</span>'].indexOf(text) >= 0) {
-    }
+    addForm
+      .validateFields()
+      .then(values => {
+        console.log(values);
+      })
+      .catch(info => {
+        // console.log('Validate Failed:', info);
+      });
   };
 
   const handleCancel = (e: any) => {
-    const text = e.target.innerHTML.replace(' ', '');
-    const icon = e.target.tagName;
-
-    if (
-      ['取消', '<span>取消</span>'].indexOf(text) >= 0 ||
-      (text.length > 10 && ['svg', 'SPAN', 'path'].indexOf(icon) >= 0)
-    ) {
-      setAddVisible(false);
-    } else {
-      const thisCurrent = current - 1;
-      if (thisCurrent <= 2 && thisCurrent >= 0) {
-        setCurrent(thisCurrent);
-        if (thisCurrent == 0) {
-          setCancelText('取消');
-        }
-
-        if (thisCurrent < 2) {
-          setOkText('下一步');
-        }
-      }
-    }
+    setAddVisible(false);
   };
 
   const dataRangeChange = (value: any) => {
-    console.log(value);
     if (value == 3) {
       setDeptVisible(true);
     } else {
@@ -244,33 +198,24 @@ export default () => {
         onOk={e => addResource(e)}
         onCancel={e => handleCancel(e)}
       >
-        <Form
-          style={{ marginTop: 40 }}
-          {...layout}
-          form={addForm}
-          name="add_form_in_modal"
-        >
+        <Form {...layout} form={addForm} name="add_form_in_modal">
           <Form.Item
             name="name"
             label="角色名称"
+            hasFeedback
             rules={[{ required: true, message: '请输入角色名称' }]}
           >
             <Input placeholder="角色名称" />
-          </Form.Item>
-          <Form.Item name="sort" label="排序序号" initialValue="0">
-            <InputNumber />
-          </Form.Item>
-          <Form.Item name="remarks" label="备注信息">
-            <Input.TextArea placeholder="备注信息" />
           </Form.Item>
           <Form.Item
             label="数据范围"
             name="dataRange"
             initialValue="0"
+            hasFeedback
             rules={[{ required: true, message: '请选择数据范围' }]}
           >
             <Select placeholder="状态" onChange={dataRangeChange}>
-              <Option value="0">仅允许查看子级</Option>
+              <Option value="0">仅允许查看自己</Option>
               <Option value="1">仅允许查看本部门</Option>
               <Option value="2">允许查看本部门及下属部门</Option>
               <Option value="3">自定义</Option>
@@ -280,6 +225,7 @@ export default () => {
           <Form.Item
             label="设置授权"
             name="deptArray"
+            hasFeedback
             rules={[{ required: true, message: '请选择授权' }]}
           >
             <TreeSelect
@@ -288,6 +234,12 @@ export default () => {
               showCheckedStrategy={SHOW_PARENT}
               placeholder="请选择机构"
             />
+          </Form.Item>
+          <Form.Item name="sort" label="排序序号" initialValue="0">
+            <InputNumber />
+          </Form.Item>
+          <Form.Item name="remarks" label="备注信息">
+            <Input.TextArea placeholder="备注信息" />
           </Form.Item>
         </Form>
       </Modal>
