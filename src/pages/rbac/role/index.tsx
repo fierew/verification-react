@@ -272,26 +272,13 @@ export default () => {
             treeCheckable={true}
             showCheckedStrategy={SHOW_PARENT}
             placeholder="请选择机构"
+            treeNodeFilterProp="title"
+            showSearch={true}
           />
         </Form.Item>
       );
     }
   };
-
-  const steps = [
-    {
-      title: '基本属性',
-      content: 'First-content',
-    },
-    {
-      title: '数据权限',
-      content: 'Second-content',
-    },
-    {
-      title: '功能授权',
-      content: 'Last-content',
-    },
-  ];
 
   const formModel = (
     <>
@@ -328,6 +315,8 @@ export default () => {
           treeCheckable={true}
           showCheckedStrategy={SHOW_PARENT}
           placeholder="请选择授权"
+          treeNodeFilterProp="title"
+          showSearch={true}
         />
       </Form.Item>
       <Form.Item name="sort" label="排序序号" initialValue="0">

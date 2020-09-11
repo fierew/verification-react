@@ -76,11 +76,33 @@ export default () => {
 
   const { type, changeType, submit, reset } = search;
 
+  const getTreeTitle = (type: number) => {
+    let title = '';
+    switch (type) {
+      case 0:
+        title = '(菜单)';
+        break;
+      case 1:
+        title = '(按钮)';
+        break;
+      case 2:
+        title = '(接口)';
+        break;
+      default:
+        title = '(未知)';
+    }
+    return title;
+  };
+
   const childrenTree = (data: any) => {
     if (data != undefined && data.length > 0) {
       return data.map((item: any) => {
         return (
-          <TreeNode key={item.id} value={item.id} title={item.name}>
+          <TreeNode
+            key={item.id}
+            value={item.id}
+            title={item.name + getTreeTitle(item.type)}
+          >
             {childrenTree(item.children)}
           </TreeNode>
         );
@@ -91,7 +113,11 @@ export default () => {
   const parentTree = (data: any) => {
     return data.map((item: any) => {
       return (
-        <TreeNode key={item.id} value={item.id} title={item.name}>
+        <TreeNode
+          key={item.id}
+          value={item.id}
+          title={item.name + getTreeTitle(item.type)}
+        >
           {childrenTree(item.children)}
         </TreeNode>
       );
@@ -273,6 +299,7 @@ export default () => {
           placeholder="请选择所属上级"
           allowClear
           treeDefaultExpandAll
+          treeNodeFilterProp="title"
           onChange={onChangeTree}
         >
           <TreeNode key={0} value={0} title={'最顶层'}>
