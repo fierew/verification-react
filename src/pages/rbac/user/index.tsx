@@ -10,6 +10,8 @@ import {
   Input,
   Space,
   Popconfirm,
+  TreeSelect,
+  Select,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { PaginatedParams } from 'ahooks/lib/useAntdTable';
@@ -18,10 +20,19 @@ import { useAntdTable } from 'ahooks';
 import moment from 'moment';
 import { pwdRegular, chineseRegular } from '@/utils/regular';
 
+const { TreeNode } = TreeSelect;
+const { Option } = Select;
+
 interface Item {
   id: number;
+  deptId: number;
+  roleId: number;
   email: string;
-  nickname: string;
+  realName: string;
+  mobile: string;
+  sex: number;
+  age: number;
+  loginNum: number;
   state: number;
   createTime: number;
   updateTime: number;
@@ -32,28 +43,36 @@ interface Result {
   list: Item[];
 }
 
-const getTableData = (
-  { current, pageSize }: PaginatedParams[0],
-  formData: Object,
-): Promise<Result> => {
-  let query = `page=${current}&pageSize=${pageSize}`;
-  Object.entries(formData).forEach(([key, value]) => {
-    if (value) {
-      query += `&${key}=${value}`;
-    }
-  });
-  return request(`/rbac/user/getList?${query}`).then(res => ({
-    total: res.data.total,
-    list: res.data.list,
-  }));
-};
-
 const initUserInfo: any = {
   email: '',
   nickname: '',
   password: '',
   confirm: '',
 };
+
+interface DeptItem {
+  id: number;
+  parentId: number;
+  name: string;
+  remarks: string;
+  sort: number;
+  createTime: number;
+  updateTime: number;
+}
+
+const initDeptLists: DeptItem[] = [];
+
+interface RoleItem {
+  id: number;
+  name: string;
+  remarks: string;
+  dataRange: number;
+  sort: number;
+  createTime: number;
+  updateTime: number;
+}
+
+const initRoleLists: RoleItem[] = [];
 
 export default () => {
   const [addVisible, setAddVisible] = useState(false);
@@ -63,6 +82,41 @@ export default () => {
   const [addUserform] = Form.useForm();
   const [editUserform] = Form.useForm();
   const [modifyPasswordForm] = Form.useForm();
+
+  const [treeValue, setTreeValue] = useState({});
+
+  const [deptLists, setDeptLists] = useState(initDeptLists);
+
+  const [roleLists, setRoleLists] = useState(initRoleLists);
+
+  const getTableData = (
+    { current, pageSize }: PaginatedParams[0],
+    formData: Object,
+  ): Promise<Result> => {
+    let query = `page=${current}&pageSize=${pageSize}`;
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value) {
+        query += `&${key}=${value}`;
+      }
+    });
+
+    request('/rbac/dept/getAll').then(res => {
+      if (res.code == 200) {
+        setDeptLists(res.data);
+      }
+    });
+
+    request('/rbac/role/getAll').then(res => {
+      if (res.code == 200) {
+        setRoleLists(res.data);
+      }
+    });
+
+    return request(`/rbac/user/getList?${query}`).then(res => ({
+      total: res.data.total,
+      list: res.data.list,
+    }));
+  };
 
   const { tableProps, search } = useAntdTable(getTableData, {
     defaultPageSize: 10,
@@ -196,8 +250,8 @@ export default () => {
     },
     {
       title: '昵称',
-      dataIndex: 'nickname',
-      key: 'nickname',
+      dataIndex: 'realName',
+      key: 'realName',
       width: 100,
       ellipsis: true,
     },
@@ -214,6 +268,13 @@ export default () => {
           return <span style={{ color: 'red' }}>禁用</span>;
         }
       },
+    },
+    {
+      title: '登陆次数',
+      dataIndex: 'loginNum',
+      key: 'loginNum',
+      width: 60,
+      ellipsis: true,
     },
     {
       title: '创建时间',
@@ -275,6 +336,28 @@ export default () => {
     setAddVisible(false);
     setEditVisible(false);
     setModifyPasswordVisible(false);
+  };
+
+  const childrenTree = (data: any) => {
+    if (data != undefined && data.length > 0) {
+      return data.map((item: any) => {
+        return (
+          <TreeNode key={item.id} value={item.id} title={item.name}>
+            {childrenTree(item.children)}
+          </TreeNode>
+        );
+      });
+    }
+  };
+
+  const parentTree = (data: any) => {
+    return data.map((item: any) => {
+      return (
+        <TreeNode key={item.id} value={item.id} title={item.name}>
+          {childrenTree(item.children)}
+        </TreeNode>
+      );
+    });
   };
 
   const modifyPasswordModel = () => {
@@ -372,6 +455,39 @@ export default () => {
       >
         <Form form={addUserform} name="add_form_in_modal">
           <Form.Item
+            label="所属机构"
+            name="deptId"
+            hasFeedback
+            rules={[{ required: true, message: '请选择机构!' }]}
+          >
+            <TreeSelect
+              showSearch
+              style={{ width: '100%' }}
+              value={treeValue}
+              dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+              placeholder="请选择机构"
+              allowClear
+              treeDefaultExpandAll
+              onChange={onChangeTree}
+            >
+              {parentTree(deptLists)}
+            </TreeSelect>
+          </Form.Item>
+          <Form.Item
+            label="所属角色"
+            name="roleId"
+            hasFeedback
+            rules={[{ required: true, message: '请选择角色' }]}
+          >
+            <Select placeholder="请选择角色">
+              {roleLists.map((item: RoleItem, index: number) => (
+                <Option key={index} value={item.id}>
+                  {item.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
             name="email"
             label="电子邮箱"
             hasFeedback
@@ -383,12 +499,20 @@ export default () => {
             <Input placeholder="邮箱" />
           </Form.Item>
           <Form.Item
-            name="nickname"
-            label="用户昵称"
+            name="realName"
+            label="真实姓名"
             hasFeedback
-            rules={[{ required: true, message: '请输入昵称!' }]}
+            rules={[{ required: true, message: '请输入真实姓名!' }]}
           >
-            <Input placeholder="昵称" />
+            <Input placeholder="真实姓名" />
+          </Form.Item>
+          <Form.Item
+            name="mobile"
+            label="手机号码"
+            hasFeedback
+            rules={[{ required: true, message: '请输入手机号码!' }]}
+          >
+            <Input placeholder="手机号码" />
           </Form.Item>
           <Form.Item
             name="password"
@@ -449,6 +573,10 @@ export default () => {
       confirm: '',
     });
     setModifyPasswordVisible(true);
+  };
+
+  const onChangeTree = (value: any) => {
+    setTreeValue({ value });
   };
 
   return (

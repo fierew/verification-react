@@ -164,7 +164,6 @@ export default () => {
   };
 
   const onChangeTree = (value: any) => {
-    console.log(value);
     setTreeValue({ value });
   };
 
