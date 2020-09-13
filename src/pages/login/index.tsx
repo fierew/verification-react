@@ -53,7 +53,7 @@ export default () => {
       sessionStorage.setItem('Authorization', res.data.token);
       const auth = await request('/rbac/auth/getAll');
 
-      const menu = request('/rbac/auth/getMenu');
+      const menu = await request('/rbac/auth/getMenu');
 
       setLoginLoading(false);
 
