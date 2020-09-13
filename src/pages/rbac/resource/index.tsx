@@ -58,7 +58,7 @@ export default () => {
 
   const [resourceLists, setResourceLists] = useState(initResourceLists);
 
-  const [iconText, setIconText] = useState('Outlined');
+  const [iconText, setIconText] = useState('GlobalOutlined');
 
   const [treeValue, setTreeValue] = useState({});
 
@@ -232,11 +232,11 @@ export default () => {
   const showAddModal = () => {
     addForm.resetFields();
     addForm.setFieldsValue({
-      icon: 'Global',
+      icon: 'GlobalOutlined',
     });
     setAddVisible(true);
     setRadio(0);
-    setIconText('Global');
+    setIconText('GlobalOutlined');
   };
 
   const showEditModal = (resourceInfo: Item) => {
@@ -251,15 +251,14 @@ export default () => {
     addForm.resetFields();
     addForm.setFieldsValue({
       parentId: id,
-      icon: 'Global',
+      icon: 'GlobalOutlined',
     });
     setAddVisible(true);
     setRadio(0);
-    setIconText('Global');
+    setIconText('GlobalOutlined');
   };
 
   const showIconModel = (e: any) => {
-    console.log(111);
     setIconVisible(true);
   };
 
@@ -302,7 +301,7 @@ export default () => {
         return (
           <>
             <Row gutter={24}>
-              <Col span={6}>
+              <Col span={12}>
                 <Form.Item
                   name="icon"
                   label="菜单图标"
@@ -311,7 +310,9 @@ export default () => {
                   <Input style={{ display: 'none' }} placeholder="请输入图标" />
                 </Form.Item>
               </Col>
-              <Col span={10}>{iconModels[iconText as string]}</Col>
+              <Col span={4} style={{ fontSize: 20 }}>
+                {iconModels[iconText as string]}
+              </Col>
               <Col span={8}>
                 <Button onClick={showIconModel} type="primary">
                   选择图标

@@ -6,6 +6,7 @@ ul.anticons-list {
     height: 400px;
     padding-left: 0px;
     overflow: scroll;
+    font-size: 25px;
 }
 
 ul.anticons-list li:hover {
