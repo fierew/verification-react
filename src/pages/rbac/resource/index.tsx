@@ -19,6 +19,8 @@ import {
 import { PlusOutlined } from '@ant-design/icons';
 import request from '@/utils/request';
 import { useAntdTable } from 'ahooks';
+import './index.css';
+import { iconNames, iconModels } from '@/utils/iconNames';
 
 const { TreeNode } = TreeSelect;
 
@@ -50,9 +52,13 @@ export default () => {
 
   const [addVisible, setAddVisible] = useState(false);
   const [editVisible, setEditVisible] = useState(false);
+  const [iconVisible, setIconVisible] = useState(false);
+
   const [radio, setRadio] = useState(0);
 
   const [resourceLists, setResourceLists] = useState(initResourceLists);
+
+  const [iconText, setIconText] = useState('Outlined');
 
   const [treeValue, setTreeValue] = useState({});
 
@@ -142,7 +148,7 @@ export default () => {
           state: values.state ? 1 : 0,
           type: values.type,
           key: values.key ?? '',
-          icon: '',
+          icon: values.icon,
           isHide: values.isHide ? 1 : 0,
         };
 
@@ -178,7 +184,7 @@ export default () => {
           state: values.state ? 1 : 0,
           type: values.type,
           key: values.key ?? '',
-          icon: '',
+          icon: values.icon,
           isHide: values.isHide ? 1 : 0,
         };
 
@@ -219,31 +225,63 @@ export default () => {
     setEditVisible(false);
   };
 
+  const incoHandleCancel = (e: any) => {
+    setIconVisible(false);
+  };
+
   const showAddModal = () => {
     addForm.resetFields();
+    addForm.setFieldsValue({
+      icon: 'Global',
+    });
     setAddVisible(true);
     setRadio(0);
+    setIconText('Global');
   };
 
   const showEditModal = (resourceInfo: Item) => {
     editForm.resetFields();
-
     editForm.setFieldsValue(resourceInfo);
     setEditVisible(true);
     setRadio(resourceInfo.type);
+    setIconText(resourceInfo.icon);
   };
 
   const showAddChildrenModal = (id: number) => {
     addForm.resetFields();
     addForm.setFieldsValue({
       parentId: id,
+      icon: 'Global',
     });
     setAddVisible(true);
     setRadio(0);
+    setIconText('Global');
+  };
+
+  const showIconModel = (e: any) => {
+    console.log(111);
+    setIconVisible(true);
   };
 
   const onChangeRadio = (e: any) => {
     setRadio(e.target.value);
+  };
+
+  const iconSeletc = (iconName: string) => {
+    const iconNode = document.getElementById('icon_' + iconText);
+
+    if (iconNode != null) {
+      iconNode.classList.remove('anticons-select');
+    }
+
+    setIconText(iconName);
+    addForm.setFieldsValue({
+      icon: iconName,
+    });
+
+    editForm.setFieldsValue({
+      icon: iconName,
+    });
   };
 
   const radioModel = (radioValue: any) => {
@@ -262,23 +300,42 @@ export default () => {
         );
       default:
         return (
-          <Row gutter={24}>
-            <Col span={16}>
-              <Form.Item
-                name="path"
-                label="菜单URL"
-                hasFeedback
-                rules={[{ required: true, message: '请输入URL' }]}
-              >
-                <Input placeholder="请输入URL,外部链接请加HTTP://" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="isHide" label="隐藏" valuePropName="checked">
-                <Switch />
-              </Form.Item>
-            </Col>
-          </Row>
+          <>
+            <Row gutter={24}>
+              <Col span={6}>
+                <Form.Item
+                  name="icon"
+                  label="菜单图标"
+                  rules={[{ required: true, message: '请选择菜单图标' }]}
+                >
+                  <Input style={{ display: 'none' }} placeholder="请输入图标" />
+                </Form.Item>
+              </Col>
+              <Col span={10}>{iconModels[iconText as string]}</Col>
+              <Col span={8}>
+                <Button onClick={showIconModel} type="primary">
+                  选择图标
+                </Button>
+              </Col>
+            </Row>
+            <Row gutter={24}>
+              <Col span={16}>
+                <Form.Item
+                  name="path"
+                  label="菜单URL"
+                  hasFeedback
+                  rules={[{ required: true, message: '请输入URL' }]}
+                >
+                  <Input placeholder="请输入URL,外部链接请加HTTP://" />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item name="isHide" label="隐藏" valuePropName="checked">
+                  <Switch />
+                </Form.Item>
+              </Col>
+            </Row>
+          </>
         );
     }
   };
@@ -382,6 +439,33 @@ export default () => {
     </Modal>
   );
 
+  const iconModel = (
+    <Modal
+      zIndex={2000}
+      visible={iconVisible}
+      onOk={e => incoHandleCancel(e)}
+      onCancel={e => incoHandleCancel(e)}
+    >
+      <ul className="anticons-list">
+        {iconNames.map((item: string, index: number) => (
+          <li
+            key={index}
+            onClick={(e: any) => {
+              iconSeletc(item);
+            }}
+            id={'icon_' + item}
+            className={
+              iconText == item ? 'Outlined anticons-select' : 'Outlined'
+            }
+          >
+            {/* <Icon style={{ fontSize: 40 }} type={item} /> */}
+            {iconModels[item]}
+          </li>
+        ))}
+      </ul>
+    </Modal>
+  );
+
   const columns: any[] = [
     {
       title: '排序',
@@ -397,13 +481,14 @@ export default () => {
       width: 100,
       ellipsis: true,
     },
-    // {
-    //   title: '图标',
-    //   dataIndex: 'icon',
-    //   key: 'icon',
-    //   width: 100,
-    //   ellipsis: true,
-    // },
+    {
+      title: '图标',
+      dataIndex: 'icon',
+      key: 'icon',
+      width: 100,
+      ellipsis: true,
+      render: (text: string) => iconModels[text as string],
+    },
     {
       title: '菜单URL',
       dataIndex: 'path',
@@ -516,6 +601,7 @@ export default () => {
       >
         添加资源
       </Button>
+      {iconModel}
       {addModel}
       {editModel}
       <Table

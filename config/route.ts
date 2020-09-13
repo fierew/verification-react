@@ -1,7 +1,7 @@
 import { IBestAFSRoute } from '@umijs/plugin-layout';
 
 export const routes: IBestAFSRoute[] = [
-  { path: '/', redirect: '/template' },
+  { path: '/', component: '@/pages/index' },
   {
     path: '/login',
     component: '@/pages/login',

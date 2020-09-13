@@ -55,6 +55,11 @@ export default () => {
 
       const menu = await request('/rbac/auth/getMenu');
 
+      const menuData = menu.data ?? [];
+      let homeUrl = '/';
+      if (menuData.length > 0) {
+        homeUrl = menu.data[0].path;
+      }
       setLoginLoading(false);
 
       setInitialState({

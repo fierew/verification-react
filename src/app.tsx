@@ -2,10 +2,11 @@ import React from 'react';
 import request from '@/utils/request';
 import { UseRequestProvider } from 'ahooks';
 import { history } from 'umi';
-import { StarOutlined } from '@ant-design/icons';
 import { message } from 'antd';
 import renderRightContent from '@/component/renderRightContent';
 import { ILayoutRuntimeConfig } from '@umijs/plugin-layout/src/types/interface.d';
+import { MenuDataItem } from '@ant-design/pro-layout';
+import { iconNames, iconModels } from '@/utils/iconNames';
 
 export const layout = {
   logout: () => {
@@ -20,7 +21,10 @@ export const layout = {
     return renderRightContent(runtimeLayout, initialState, setInitialState);
   },
   patchMenus: (menus: any, initial: any) => {
-    return initial.initialState.menu;
+    const init = initial ?? [];
+
+    const initialState = init.initialState ?? [];
+    return loopMenuItem(initialState.menu ?? []);
 
     // menus = [
     //   {
@@ -112,3 +116,10 @@ export async function onRouteChange({ location, routes, action }: any) {
     history.push('/login');
   }
 }
+
+const loopMenuItem = (menus: MenuDataItem[]): MenuDataItem[] =>
+  menus.map(({ icon, children, ...item }) => ({
+    ...item,
+    icon: icon && iconModels[icon as string],
+    children: children && loopMenuItem(children),
+  }));
