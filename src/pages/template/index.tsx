@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button, Popconfirm, Space, message } from 'antd';
-import { history } from 'umi';
-import { Link } from 'umi';
+import { history, useAccess, Link } from 'umi';
 import moment from 'moment';
 import { PlusOutlined } from '@ant-design/icons';
 import TemplateTable from '@/component/templateTable';
@@ -10,6 +9,8 @@ import downloadUtils from '@/utils/downloadUtils';
 
 let reloadTable: any;
 export default () => {
+  const access = useAccess();
+  console.log(access);
   const disable = (id: number, state: number) => {
     request(`/template/modifyState/${id}`, {
       method: 'PUT',

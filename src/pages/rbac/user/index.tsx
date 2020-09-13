@@ -12,6 +12,9 @@ import {
   Popconfirm,
   TreeSelect,
   Select,
+  InputNumber,
+  Switch,
+  Radio,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { PaginatedParams } from 'ahooks/lib/useAntdTable';
@@ -26,7 +29,9 @@ const { Option } = Select;
 interface Item {
   id: number;
   deptId: number;
+  deptName: string;
   roleId: number;
+  roleName: string;
   email: string;
   realName: string;
   mobile: string;
@@ -73,6 +78,11 @@ interface RoleItem {
 }
 
 const initRoleLists: RoleItem[] = [];
+
+const layout = {
+  labelCol: { span: 4 },
+  wrapperCol: { span: 20 },
+};
 
 export default () => {
   const [addVisible, setAddVisible] = useState(false);
@@ -182,13 +192,21 @@ export default () => {
     addUserform
       .validateFields()
       .then(values => {
+        const data = {
+          deptId: values.deptId,
+          roleId: values.roleId,
+          email: values.email,
+          realName: values.realName,
+          mobile: values.mobile,
+          password: values.password,
+          sex: values.sex ?? 0,
+          age: values.age ?? 0,
+          state: values.state ? 1 : 0,
+        };
+
         request('/rbac/user/add', {
           method: 'POST',
-          data: {
-            email: values.email,
-            nickname: values.nickname,
-            password: values.password,
-          },
+          data: data,
         }).then(res => {
           if (res.code === 200) {
             addUserform.resetFields();
@@ -209,13 +227,33 @@ export default () => {
     editUserform
       .validateFields()
       .then(values => {
-        editUserform.resetFields();
-        console.log(values);
-        setEditVisible(false);
-        submit();
+        const data = {
+          deptId: values.deptId,
+          roleId: values.roleId,
+          email: values.email,
+          realName: values.realName,
+          mobile: values.mobile,
+          sex: values.sex ?? 0,
+          age: values.age ?? 0,
+          state: values.state ? 1 : 0,
+        };
+
+        request(`/rbac/user/edit/${values.id}`, {
+          method: 'PUT',
+          data: data,
+        }).then(res => {
+          if (res.code === 200) {
+            editUserform.resetFields();
+            setEditVisible(false);
+            submit();
+            message.success(res.msg);
+          } else {
+            message.error(res.msg);
+          }
+        });
       })
       .catch(info => {
-        console.log('Validate Failed:', info);
+        // console.log('Validate Failed:', info);
       });
   };
 
@@ -223,13 +261,26 @@ export default () => {
     modifyPasswordForm
       .validateFields()
       .then(values => {
-        modifyPasswordForm.resetFields();
-        console.log(values);
-        setModifyPasswordVisible(false);
-        submit();
+        const data = {
+          password: values.password,
+        };
+
+        request(`/rbac/user/modifyPassWord/${values.id}`, {
+          method: 'PUT',
+          data: data,
+        }).then(res => {
+          if (res.code === 200) {
+            modifyPasswordForm.resetFields();
+            setModifyPasswordVisible(false);
+            submit();
+            message.success(res.msg);
+          } else {
+            message.error(res.msg);
+          }
+        });
       })
       .catch(info => {
-        console.log('Validate Failed:', info);
+        // console.log('Validate Failed:', info);
       });
   };
 
@@ -238,7 +289,21 @@ export default () => {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      width: 80,
+      width: 50,
+      ellipsis: true,
+    },
+    {
+      title: '所属机构',
+      dataIndex: 'deptName',
+      key: 'deptName',
+      width: 100,
+      ellipsis: true,
+    },
+    {
+      title: '角色',
+      dataIndex: 'roleName',
+      key: 'roleName',
+      width: 100,
       ellipsis: true,
     },
     {
@@ -249,7 +314,7 @@ export default () => {
       ellipsis: true,
     },
     {
-      title: '昵称',
+      title: '真实姓名',
       dataIndex: 'realName',
       key: 'realName',
       width: 100,
@@ -259,7 +324,7 @@ export default () => {
       title: '状态',
       dataIndex: 'state',
       key: 'state',
-      width: 100,
+      width: 60,
       ellipsis: true,
       render: (text: number) => {
         if (text === 1) {
@@ -370,43 +435,14 @@ export default () => {
       >
         <Form form={modifyPasswordForm} name="modify_pwd_form_in_modal">
           <Form.Item
-            name="password"
-            label="用户密码"
-            hasFeedback
-            rules={[
-              {
-                type: 'string',
-                pattern: pwdRegular,
-                message: '必须为数字+小写字母+大写字母+特殊符号8～16位!',
-              },
-              {
-                type: 'string',
-                pattern: chineseRegular,
-                message: '密码不能有中文!',
-              },
-              { required: true, message: '请输入密码!' },
-            ]}
+            name="id"
+            label="ID"
+            initialValue={0}
+            style={{ display: 'none' }}
           >
-            <Input.Password placeholder="密码" />
+            <InputNumber />
           </Form.Item>
-          <Form.Item
-            name="confirm"
-            label="确认密码"
-            hasFeedback
-            rules={[
-              { required: true, message: '请输入确认密码!' },
-              ({ getFieldValue }) => ({
-                validator(rule, value) {
-                  if (!value || getFieldValue('password') === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject('您输入的两个密码不匹配!');
-                },
-              }),
-            ]}
-          >
-            <Input.Password placeholder="确认密码" />
-          </Form.Item>
+          {pwdModel}
         </Form>
       </Modal>
     );
@@ -422,28 +458,167 @@ export default () => {
       >
         <Form form={editUserform} name="edit_form_in_modal">
           <Form.Item
-            name="email"
-            label="电子邮箱"
-            hasFeedback
-            rules={[
-              { type: 'email', message: '输入的电子邮件无效!' },
-              { required: true, message: '请输入邮箱!' },
-            ]}
+            name="id"
+            label="ID"
+            initialValue={0}
+            style={{ display: 'none' }}
           >
-            <Input placeholder="邮箱" />
+            <InputNumber />
           </Form.Item>
-          <Form.Item
-            name="nickname"
-            label="用户昵称"
-            hasFeedback
-            rules={[{ required: true, message: '请输入昵称!' }]}
-          >
-            <Input placeholder="昵称" />
-          </Form.Item>
+          {formModel}
         </Form>
       </Modal>
     );
   };
+
+  const pwdModel = (
+    <>
+      <Form.Item
+        name="password"
+        label="用户密码"
+        hasFeedback
+        rules={[
+          {
+            type: 'string',
+            pattern: pwdRegular,
+            message: '必须为数字+小写字母+大写字母+特殊符号8～16位!',
+          },
+          {
+            type: 'string',
+            pattern: chineseRegular,
+            message: '密码不能有中文!',
+          },
+          { required: true, message: '请输入密码!' },
+        ]}
+      >
+        <Input.Password placeholder="密码" />
+      </Form.Item>
+      <Form.Item
+        name="confirm"
+        label="确认密码"
+        hasFeedback
+        rules={[
+          { required: true, message: '请输入确认密码!' },
+          ({ getFieldValue }) => ({
+            validator(rule, value) {
+              if (!value || getFieldValue('password') === value) {
+                return Promise.resolve();
+              }
+              return Promise.reject('您输入的两个密码不匹配!');
+            },
+          }),
+        ]}
+      >
+        <Input.Password placeholder="确认密码" />
+      </Form.Item>
+    </>
+  );
+
+  const formModel = (
+    <>
+      <Form.Item
+        label="所属机构"
+        name="deptId"
+        hasFeedback
+        rules={[{ required: true, message: '请选择机构!' }]}
+      >
+        <TreeSelect
+          showSearch
+          style={{ width: '100%' }}
+          value={treeValue}
+          dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+          placeholder="请选择机构"
+          allowClear
+          treeDefaultExpandAll
+          onChange={(value: any) => {
+            setTreeValue({ value });
+          }}
+        >
+          {parentTree(deptLists)}
+        </TreeSelect>
+      </Form.Item>
+      <Form.Item
+        label="所属角色"
+        name="roleId"
+        hasFeedback
+        rules={[{ required: true, message: '请选择角色' }]}
+      >
+        <Select placeholder="请选择角色">
+          {roleLists.map((item: RoleItem, index: number) => (
+            <Option key={index} value={item.id}>
+              {item.name}
+            </Option>
+          ))}
+        </Select>
+      </Form.Item>
+      <Form.Item
+        name="email"
+        label="电子邮箱"
+        hasFeedback
+        rules={[
+          { type: 'email', message: '输入的电子邮件无效!' },
+          { required: true, message: '请输入邮箱!' },
+        ]}
+      >
+        <Input placeholder="邮箱" />
+      </Form.Item>
+      <Form.Item
+        name="realName"
+        label="真实姓名"
+        hasFeedback
+        rules={[{ required: true, message: '请输入真实姓名!' }]}
+      >
+        <Input placeholder="真实姓名" />
+      </Form.Item>
+      <Form.Item
+        name="mobile"
+        label="手机号码"
+        hasFeedback
+        rules={[{ required: true, message: '请输入手机号码!' }]}
+      >
+        <Input placeholder="手机号码" />
+      </Form.Item>
+      <Row gutter={24}>
+        <Col span={9}>
+          <Form.Item
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
+            name="sex"
+            label="性别"
+            hasFeedback
+            initialValue={0}
+          >
+            <Radio.Group>
+              <Radio value={1}>男</Radio>
+              <Radio value={2}>女</Radio>
+            </Radio.Group>
+          </Form.Item>
+        </Col>
+        <Col span={8}>
+          <Form.Item
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 16 }}
+            name="age"
+            label="年龄"
+            initialValue="0"
+          >
+            <InputNumber />
+          </Form.Item>
+        </Col>
+        <Col span={7}>
+          <Form.Item
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 16 }}
+            name="state"
+            label="状态"
+            valuePropName="checked"
+          >
+            <Switch />
+          </Form.Item>
+        </Col>
+      </Row>
+    </>
+  );
 
   const addModel = () => {
     return (
@@ -453,105 +628,9 @@ export default () => {
         onOk={e => addUser(e)}
         onCancel={e => handleCancel(e)}
       >
-        <Form form={addUserform} name="add_form_in_modal">
-          <Form.Item
-            label="所属机构"
-            name="deptId"
-            hasFeedback
-            rules={[{ required: true, message: '请选择机构!' }]}
-          >
-            <TreeSelect
-              showSearch
-              style={{ width: '100%' }}
-              value={treeValue}
-              dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-              placeholder="请选择机构"
-              allowClear
-              treeDefaultExpandAll
-              onChange={onChangeTree}
-            >
-              {parentTree(deptLists)}
-            </TreeSelect>
-          </Form.Item>
-          <Form.Item
-            label="所属角色"
-            name="roleId"
-            hasFeedback
-            rules={[{ required: true, message: '请选择角色' }]}
-          >
-            <Select placeholder="请选择角色">
-              {roleLists.map((item: RoleItem, index: number) => (
-                <Option key={index} value={item.id}>
-                  {item.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item
-            name="email"
-            label="电子邮箱"
-            hasFeedback
-            rules={[
-              { type: 'email', message: '输入的电子邮件无效!' },
-              { required: true, message: '请输入邮箱!' },
-            ]}
-          >
-            <Input placeholder="邮箱" />
-          </Form.Item>
-          <Form.Item
-            name="realName"
-            label="真实姓名"
-            hasFeedback
-            rules={[{ required: true, message: '请输入真实姓名!' }]}
-          >
-            <Input placeholder="真实姓名" />
-          </Form.Item>
-          <Form.Item
-            name="mobile"
-            label="手机号码"
-            hasFeedback
-            rules={[{ required: true, message: '请输入手机号码!' }]}
-          >
-            <Input placeholder="手机号码" />
-          </Form.Item>
-          <Form.Item
-            name="password"
-            label="用户密码"
-            hasFeedback
-            rules={[
-              {
-                type: 'string',
-                pattern: pwdRegular,
-                message: '必须为数字+小写字母+大写字母+特殊符号8～16位!',
-              },
-              {
-                type: 'string',
-                pattern: chineseRegular,
-                message: '密码不能有中文!',
-              },
-              { required: true, message: '请输入密码!' },
-            ]}
-          >
-            <Input.Password placeholder="密码" />
-          </Form.Item>
-          <Form.Item
-            name="confirm"
-            label="确认密码"
-            hasFeedback
-            rules={[
-              { required: true, message: '请输入确认密码!' },
-              ({ getFieldValue }) => ({
-                validator(rule, value) {
-                  if (!value || getFieldValue('password') === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject('您输入的两个密码不匹配!');
-                },
-              }),
-            ]}
-          >
-            <Input.Password placeholder="确认密码" />
-          </Form.Item>
+        <Form {...layout} form={addUserform} name="add_form_in_modal">
+          {formModel}
+          {pwdModel}
         </Form>
       </Modal>
     );
@@ -569,14 +648,11 @@ export default () => {
 
   const showModifyPassword = (id: number) => {
     modifyPasswordForm.setFieldsValue({
+      id: id,
       password: '',
       confirm: '',
     });
     setModifyPasswordVisible(true);
-  };
-
-  const onChangeTree = (value: any) => {
-    setTreeValue({ value });
   };
 
   return (

@@ -46,18 +46,25 @@ export default () => {
       data: values,
     });
 
-    setLoginLoading(false);
-
     if (res.code !== 200) {
+      setLoginLoading(false);
       message.error(res.msg);
     } else {
       sessionStorage.setItem('Authorization', res.data.token);
+      const auth = await request('/rbac/auth/getAll');
+
+      const menu = request('/rbac/auth/getMenu');
+
+      setLoginLoading(false);
 
       setInitialState({
         name: res.data.email,
         userInfo: res.data,
+        auth: auth.data,
+        menu: menu.data,
       });
-      history.push('/template');
+      // history.push('/template');
+      window.location.href = '/';
     }
   };
   const userContent = (

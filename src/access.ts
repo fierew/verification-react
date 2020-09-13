@@ -1,16 +1,25 @@
 export default function(initialState: any) {
-  return {
-    '/template': true,
-    '/template/add': true,
-    '/template/edit': true,
-    '/verification': true,
-    '/verification/add': true,
-    '/verification/edit': true,
-    '/verification/log': true,
-    '/rbac/dept': true,
-    '/rbac/resource': true,
-    '/rbac/role': true,
-    '/rbac/user': true,
-    '/log/login': true,
-  };
+  const authData = initialState.auth;
+
+  const paths = [
+    '/template',
+    '/template/add',
+    '/template/edit',
+    '/verification',
+    '/verification/add',
+    '/verification/edit',
+    '/verification/log',
+    '/rbac/dept',
+    '/rbac/resource',
+    '/rbac/role',
+    '/rbac/user',
+    '/log/login',
+  ];
+
+  let res: any = {};
+  for (let i = 0; i < paths.length; i++) {
+    res[paths[i]] = authData.indexOf(paths[i]) >= 0;
+  }
+
+  return res;
 }

@@ -205,7 +205,6 @@ export default () => {
       .validateFields()
       .then(values => {
         const data = {
-          id: values.id,
           name: values.name,
           remarks: values.remarks ?? '',
           dataRange: values.dataRange,
