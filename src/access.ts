@@ -1,5 +1,4 @@
 export default function(initialState: any) {
-  console.log(initialState);
   const init = initialState ?? [];
   const authData = init.auth ?? [];
   if (authData) {
