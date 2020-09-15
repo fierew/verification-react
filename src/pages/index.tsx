@@ -9,9 +9,21 @@ export default () => {
 
   const menu = initialState?.menu ?? [];
 
+  let path: string;
+
+  const getPath = (data: any) => {
+    if (data.children != undefined && data.children.length > 0) {
+      getPath(data.children[0]);
+    } else {
+      path = data.path;
+      return;
+    }
+  };
+
   useEffect(() => {
-    if (menu.length > 0) {
-      history.push(menu[0].path);
+    if (menu != undefined && menu.length > 0) {
+      getPath(menu[0]);
+      history.push(path);
     }
   }, []);
 

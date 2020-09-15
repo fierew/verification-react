@@ -15,6 +15,11 @@ export default function(initialState: any) {
       '/rbac/role',
       '/rbac/user',
       '/log/login',
+
+      'templateAddButton',
+      'templateEditButton',
+      'templateDownloadButton',
+      'templateModifyStateButton',
     ];
 
     let res: any = {};

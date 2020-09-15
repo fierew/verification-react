@@ -62,6 +62,9 @@ export default () => {
   const [deptTreeData, setDeptTreeData] = useState([]);
   const [resourceTreeData, setResourceTreeData] = useState([]);
 
+  const [deptParentData, setDeptParentData] = useState([]);
+  const [resourceParentData, setResourceParentData] = useState([]);
+
   const getTableData = (
     { current, pageSize }: PaginatedParams[0],
     formData: Object,
@@ -75,13 +78,21 @@ export default () => {
 
     request('/rbac/dept/getAll').then(res => {
       if (res.code == 200) {
-        setDeptTreeData(parentTree(res.data, 'dept'));
+        const deptTreeData = parentTree(res.data, 'dept');
+        setDeptTreeData(deptTreeData);
+        const deptTreeMap: any = {};
+        loops(deptTreeMap, deptTreeData, undefined);
+        setDeptParentData(deptTreeMap);
       }
     });
 
     request('/rbac/resource/getList').then(res => {
       if (res.code == 200) {
-        setResourceTreeData(parentTree(res.data, 'resource'));
+        const resourceTreeData = parentTree(res.data, 'resource');
+        setResourceTreeData(resourceTreeData);
+        const resourceTreeMap: any = {};
+        loops(resourceTreeMap, resourceTreeData, undefined);
+        setResourceParentData(resourceTreeMap);
       }
     });
 
@@ -104,6 +115,46 @@ export default () => {
   // }, []);
 
   // const componentWillUnmount = () => {};
+
+  //const valueMap: any = {};
+  const loops = (valueMap: any, list: any, parent: any) => {
+    return (list || []).map((item: any) => {
+      const node: any = (valueMap[item.value] = {
+        parent: parent,
+        value: item.value,
+      });
+
+      node.children = loops(valueMap, item.children, node);
+      return node;
+    });
+  };
+
+  const getTreeParent = (value: any, type: any) => {
+    const path: any[] = [];
+
+    value.forEach((item: any) => {
+      let current: any = '';
+      if (type == 'dept') {
+        current = deptParentData[item];
+      } else {
+        current = resourceParentData[item];
+      }
+
+      while (current) {
+        path.unshift(current.value);
+        current = current.parent;
+      }
+    });
+
+    const array: any[] = [];
+    for (let i = 0; i < path.length; i++) {
+      if (array.indexOf(path[i]) === -1) {
+        array.push(path[i]);
+      }
+    }
+
+    return array;
+  };
 
   const getTreeTitle = (type: number) => {
     let title = '';
@@ -166,6 +217,12 @@ export default () => {
 
     editForm.setFieldsValue(info);
     setEditVisible(true);
+
+    if (info.dataRange == 3) {
+      setDeptVisible(true);
+    } else {
+      setDeptVisible(false);
+    }
   };
 
   const addResource = (e: any) => {
@@ -178,9 +235,12 @@ export default () => {
           dataRange: values.dataRange,
           deptArray: values.deptArray ?? [],
           resourceArray: values.resourceArray ?? [],
+          deptParent: getTreeParent(values.deptArray ?? [], 'dept'),
+          resourceParent: getTreeParent(values.resourceArray ?? [], 'resource'),
           sort: values.sort ?? 0,
         };
 
+        console.log(data);
         request('/rbac/role/add/', {
           method: 'POST',
           data: data,
@@ -210,8 +270,11 @@ export default () => {
           dataRange: values.dataRange,
           deptArray: values.deptArray ?? [],
           resourceArray: values.resourceArray ?? [],
+          deptParent: getTreeParent(values.deptArray ?? [], 'dept'),
+          resourceParent: getTreeParent(values.resourceArray ?? [], 'resource'),
           sort: values.sort ?? 0,
         };
+        console.log(data);
 
         request(`/rbac/role/edit/${values.id}`, {
           method: 'PUT',
@@ -228,7 +291,7 @@ export default () => {
         });
       })
       .catch(info => {
-        // console.log('Validate Failed:', info);
+        console.log('Validate Failed:', info);
       });
   };
 
