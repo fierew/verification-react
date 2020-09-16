@@ -21,6 +21,7 @@ import request from '@/utils/request';
 import { useAntdTable } from 'ahooks';
 import './index.css';
 import { iconNames, iconModels } from '@/utils/iconNames';
+import { useAccess } from 'umi';
 
 const { TreeNode } = TreeSelect;
 
@@ -47,6 +48,7 @@ interface Result {
 const initResourceLists: Item[] = [];
 
 export default () => {
+  const access = useAccess();
   const [addForm] = Form.useForm();
   const [editForm] = Form.useForm();
 
@@ -148,7 +150,7 @@ export default () => {
           state: values.state ? 1 : 0,
           type: values.type,
           key: values.key ?? '',
-          icon: values.icon,
+          icon: values.icon ?? '',
           isHide: values.isHide ? 1 : 0,
         };
 
@@ -184,7 +186,7 @@ export default () => {
           state: values.state ? 1 : 0,
           type: values.type,
           key: values.key ?? '',
-          icon: values.icon,
+          icon: values.icon ?? '',
           isHide: values.isHide ? 1 : 0,
         };
 
@@ -564,44 +566,76 @@ export default () => {
       render: (text: any, record: Item) => {
         return (
           <Space size="middle">
-            <a
-              onClick={() => {
-                showEditModal(record);
-              }}
-            >
-              编辑
-            </a>
-            <Popconfirm
-              title="是否删除资源?"
-              onConfirm={() => {
-                deleteResource(record.id);
-              }}
-            >
-              <a style={{ color: 'red' }}>删除</a>
-            </Popconfirm>
-            <a
-              onClick={() => {
-                showAddChildrenModal(record.id);
-              }}
-            >
-              添加子节点
-            </a>
+            {editButtonModel(record)}
+            {deleteButtonModel(record.id)}
+            {addChildrenButtonModel(record.id)}
           </Space>
         );
       },
     },
   ];
 
+  const addChildrenButtonModel = (id: number) => {
+    if (access.rbacResourceAddButton) {
+      return (
+        <a
+          onClick={() => {
+            showAddChildrenModal(id);
+          }}
+        >
+          添加子节点
+        </a>
+      );
+    }
+  };
+
+  const deleteButtonModel = (id: number) => {
+    if (access.rbacResourceDeleteButton) {
+      return (
+        <Popconfirm
+          title="是否删除资源?"
+          onConfirm={() => {
+            deleteResource(id);
+          }}
+        >
+          <a style={{ color: 'red' }}>删除</a>
+        </Popconfirm>
+      );
+    }
+  };
+
+  const editButtonModel = (record: Item) => {
+    if (access.rbacResourceEditButton) {
+      return (
+        <a
+          onClick={() => {
+            showEditModal(record);
+          }}
+        >
+          编辑
+        </a>
+      );
+    }
+  };
+
+  const addButtonModel = () => {
+    if (access.rbacResourceAddButton) {
+      return (
+        <Button
+          style={{ marginBottom: 15 }}
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={showAddModal}
+        >
+          添加资源
+        </Button>
+      );
+    }
+  };
+
   return (
     <div style={{ padding: 12 }}>
-      <Button
-        style={{ marginBottom: 15 }}
-        type="primary"
-        icon={<PlusOutlined />}
-        onClick={showAddModal}
-      >
-        添加资源
-      </Button>
+      {addButtonModel()}
       {iconModel}
       {addModel}
       {editModel}

@@ -22,6 +22,7 @@ import request from '@/utils/request';
 import { useAntdTable } from 'ahooks';
 import moment from 'moment';
 import { pwdRegular, chineseRegular } from '@/utils/regular';
+import { useAccess } from 'umi';
 
 const { TreeNode } = TreeSelect;
 const { Option } = Select;
@@ -85,6 +86,7 @@ const layout = {
 };
 
 export default () => {
+  const access = useAccess();
   const [addVisible, setAddVisible] = useState(false);
   const [editVisible, setEditVisible] = useState(false);
   const [modifyPasswordVisible, setModifyPasswordVisible] = useState(false);
@@ -369,28 +371,9 @@ export default () => {
       render: (text: any, record: Item) => {
         return (
           <Space size="middle">
-            <a
-              onClick={() => {
-                showEditModal(record);
-              }}
-            >
-              编辑
-            </a>
-            <a
-              onClick={() => {
-                showModifyPassword(record.id);
-              }}
-            >
-              修改密码
-            </a>
-            <Popconfirm
-              title="是否删除用户?"
-              onConfirm={() => {
-                deleteUser(record.id);
-              }}
-            >
-              <a style={{ color: 'red' }}>删除</a>
-            </Popconfirm>
+            {editButtonModel(record)}
+            {modifyPwdButtonModel(record.id)}
+            {deleteButtonModel(record.id)}
           </Space>
         );
       },
@@ -655,16 +638,67 @@ export default () => {
     setModifyPasswordVisible(true);
   };
 
+  const editButtonModel = (record: Item) => {
+    if (access.rbacUserEditButton) {
+      return (
+        <a
+          onClick={() => {
+            showEditModal(record);
+          }}
+        >
+          编辑
+        </a>
+      );
+    }
+  };
+
+  const modifyPwdButtonModel = (id: number) => {
+    if (access.rbacUserModifyPwdButton) {
+      return (
+        <a
+          onClick={() => {
+            showModifyPassword(id);
+          }}
+        >
+          修改密码
+        </a>
+      );
+    }
+  };
+
+  const deleteButtonModel = (id: number) => {
+    if (access.rbacUserDeleteButton) {
+      return (
+        <Popconfirm
+          title="是否删除用户?"
+          onConfirm={() => {
+            deleteUser(id);
+          }}
+        >
+          <a style={{ color: 'red' }}>删除</a>
+        </Popconfirm>
+      );
+    }
+  };
+
+  const addButtonModle = () => {
+    if (access.rbacUserAddButton) {
+      return (
+        <Button
+          style={{ marginBottom: 15 }}
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={showAddModal}
+        >
+          添加用户
+        </Button>
+      );
+    }
+  };
+
   return (
     <div style={{ padding: 12 }}>
-      <Button
-        style={{ marginBottom: 15 }}
-        type="primary"
-        icon={<PlusOutlined />}
-        onClick={showAddModal}
-      >
-        添加用户
-      </Button>
+      {addButtonModle()}
       {addModel()}
       {editModel()}
       {modifyPasswordModel()}

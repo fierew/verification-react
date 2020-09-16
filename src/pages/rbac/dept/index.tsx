@@ -5,20 +5,16 @@ import {
   Modal,
   message,
   Form,
-  Row,
-  Col,
   Input,
   Space,
   TreeSelect,
-  Radio,
   InputNumber,
-  Switch,
-  Tag,
   Popconfirm,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import request from '@/utils/request';
 import { useAntdTable } from 'ahooks';
+import { useAccess } from 'umi';
 
 const { TreeNode } = TreeSelect;
 
@@ -44,6 +40,7 @@ const layout = {
 };
 
 export default () => {
+  const access = useAccess();
   const [addForm] = Form.useForm();
   const [editForm] = Form.useForm();
 
@@ -300,44 +297,76 @@ export default () => {
       render: (text: any, record: Item) => {
         return (
           <Space size="middle">
-            <a
-              onClick={() => {
-                showEditModal(record);
-              }}
-            >
-              编辑
-            </a>
-            <Popconfirm
-              title="是否删除机构?"
-              onConfirm={() => {
-                deleteResource(record.id);
-              }}
-            >
-              <a style={{ color: 'red' }}>删除</a>
-            </Popconfirm>
-            <a
-              onClick={() => {
-                showAddChildrenModal(record.id);
-              }}
-            >
-              添加子节点
-            </a>
+            {editButtonModel(record)}
+            {deleteButtonModel(record.id)}
+            {addChildrenButtonModel(record.id)}
           </Space>
         );
       },
     },
   ];
 
+  const addChildrenButtonModel = (id: number) => {
+    if (access.rbacDeptAddButton) {
+      return (
+        <a
+          onClick={() => {
+            showAddChildrenModal(id);
+          }}
+        >
+          添加子节点
+        </a>
+      );
+    }
+  };
+
+  const deleteButtonModel = (id: number) => {
+    if (access.rbacDeptDeleteButton) {
+      return (
+        <Popconfirm
+          title="是否删除机构?"
+          onConfirm={() => {
+            deleteResource(id);
+          }}
+        >
+          <a style={{ color: 'red' }}>删除</a>
+        </Popconfirm>
+      );
+    }
+  };
+
+  const editButtonModel = (record: Item) => {
+    if (access.rbacDeptEditButton) {
+      return (
+        <a
+          onClick={() => {
+            showEditModal(record);
+          }}
+        >
+          编辑
+        </a>
+      );
+    }
+  };
+
+  const addButtonModel = () => {
+    if (access.rbacDeptAddButton) {
+      return (
+        <Button
+          style={{ marginBottom: 15 }}
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={showAddModal}
+        >
+          添加机构
+        </Button>
+      );
+    }
+  };
+
   return (
     <div style={{ padding: 12 }}>
-      <Button
-        style={{ marginBottom: 15 }}
-        type="primary"
-        icon={<PlusOutlined />}
-        onClick={showAddModal}
-      >
-        添加机构
-      </Button>
+      {addButtonModel()}
       {addModel}
       {editModel}
       <Table

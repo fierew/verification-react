@@ -20,6 +20,29 @@ export default function(initialState: any) {
       'templateEditButton',
       'templateDownloadButton',
       'templateModifyStateButton',
+
+      'verificationAddButton',
+      'verificationEditButton',
+      'verificationLogButton',
+      'verificationDownloadsButton',
+      'verificationDeleteButton',
+
+      'rbacDeptAddButton',
+      'rbacDeptEditButton',
+      'rbacDeptDeleteButton',
+
+      'rbacResourceAddButton',
+      'rbacResourceEditButton',
+      'rbacResourceDeleteButton',
+
+      'rbacRoleAddButton',
+      'rbacRoleEditButton',
+      'rbacRoleDeleteButton',
+
+      'rbacUserAddButton',
+      'rbacUserEditButton',
+      'rbacUserDeleteButton',
+      'rbacUserModifyPwdButton',
     ];
 
     let res: any = {};

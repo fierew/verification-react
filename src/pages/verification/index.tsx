@@ -12,7 +12,7 @@ import {
   Popconfirm,
   InputNumber,
 } from 'antd';
-import { history, Link } from 'umi';
+import { history, Link, useAccess } from 'umi';
 import { PlusOutlined } from '@ant-design/icons';
 import TemplateTable from '@/component/templateTable';
 import { PaginatedParams } from 'ahooks/lib/useAntdTable';
@@ -51,6 +51,7 @@ const getTableData = (
 };
 
 export default () => {
+  const access = useAccess();
   const [visible, setVisible] = useState(false);
   const [templateId, setTemplateId] = useState(0);
   const [form] = Form.useForm();
@@ -189,23 +190,10 @@ export default () => {
       render: (text: any, record: { id: number; name: string }) => {
         return (
           <Space size="middle">
-            <Link to={`/verification/log/${record.id}`}>日志</Link>
-            <Link to={`/verification/edit/${record.id}`}>编辑</Link>
-            <a
-              onClick={() => {
-                download(record.id, record.name);
-              }}
-            >
-              下载
-            </a>
-            <Popconfirm
-              title="是否删除鉴定日志?"
-              onConfirm={() => {
-                deleteTable(record.id);
-              }}
-            >
-              <a style={{ color: 'red' }}>删除</a>
-            </Popconfirm>
+            {logButtonModel(record.id)}
+            {editButtonModel(record.id)}
+            {downloadButtonModel(record.id, record.name)}
+            {deleteButtonModel(record.id)}
           </Space>
         );
       },
@@ -277,16 +265,65 @@ export default () => {
     </Modal>
   );
 
+  const deleteButtonModel = (id: number) => {
+    if (access.verificationDeleteButton) {
+      return (
+        <Popconfirm
+          title="是否删除鉴定日志?"
+          onConfirm={() => {
+            deleteTable(id);
+          }}
+        >
+          <a style={{ color: 'red' }}>删除</a>
+        </Popconfirm>
+      );
+    }
+  };
+
+  const downloadButtonModel = (id: number, name: string) => {
+    if (access.verificationDownloadsButton) {
+      return (
+        <a
+          onClick={() => {
+            download(id, name);
+          }}
+        >
+          下载
+        </a>
+      );
+    }
+  };
+
+  const logButtonModel = (id: number) => {
+    if (access.verificationLogButton) {
+      return <Link to={`/verification/log/${id}`}>日志</Link>;
+    }
+  };
+
+  const editButtonModel = (id: number) => {
+    if (access.verificationEditButton) {
+      return <Link to={`/verification/edit/${id}`}>编辑</Link>;
+    }
+  };
+
+  const addButtonModel = () => {
+    if (access.verificationAddButton) {
+      return (
+        <Button
+          style={{ marginBottom: 15 }}
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={showModal}
+        >
+          添加鉴定
+        </Button>
+      );
+    }
+  };
+
   return (
     <div style={{ padding: 12 }}>
-      <Button
-        style={{ marginBottom: 15 }}
-        type="primary"
-        icon={<PlusOutlined />}
-        onClick={showModal}
-      >
-        添加鉴定
-      </Button>
+      {addButtonModel()}
       {modal}
       {type === 'simple' ? searchFrom : advanceSearchForm}
       <Table

@@ -25,53 +25,6 @@ export const layout = {
 
     const initialState = init.initialState ?? [];
     return loopMenuItem(initialState.menu ?? []);
-
-    // menus = [
-    //   {
-    //     name: '模板管理',
-    //     icon: <StarOutlined />,
-    //     path: '/template',
-    //   },
-    //   {
-    //     name: '鉴定日志',
-    //     icon: <StarOutlined />,
-    //     path: '/verification',
-    //   },
-    //   {
-    //     name: '权限管理',
-    //     icon: <StarOutlined />,
-    //     path: '/rbac',
-    //     children: [
-    //       {
-    //         name: '机构管理',
-    //         icon: <StarOutlined />,
-    //         path: 'dept',
-    //       },
-    //       {
-    //         name: '资源管理',
-    //         icon: <StarOutlined />,
-    //         path: 'resource',
-    //       },
-    //       {
-    //         name: '角色管理',
-    //         icon: <StarOutlined />,
-    //         path: 'role',
-    //       },
-    //       {
-    //         name: '用户管理',
-    //         icon: <StarOutlined />,
-    //         path: 'user',
-    //       },
-    //     ],
-    //   },
-    //   // {
-    //   //   name: '操作日志',
-    //   //   icon: <StarOutlined />,
-    //   //   path: '/log/operate',
-    //   // },
-    // ];
-
-    //return menu.data;
   },
   childrenRender: (children: React.ReactNode) => {
     return (

@@ -23,6 +23,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import request from '@/utils/request';
 import { PaginatedParams } from 'ahooks/lib/useAntdTable';
 import { useAntdTable } from 'ahooks';
+import { useAccess } from 'umi';
 
 const { Step } = Steps;
 const { Option } = Select;
@@ -50,6 +51,7 @@ const layout = {
 let initDirection: 'horizontal' | 'vertical' | undefined = 'horizontal';
 
 export default () => {
+  const access = useAccess();
   const [form] = Form.useForm();
   const [addForm] = Form.useForm();
   const [editForm] = Form.useForm();
@@ -240,7 +242,6 @@ export default () => {
           sort: values.sort ?? 0,
         };
 
-        console.log(data);
         request('/rbac/role/add/', {
           method: 'POST',
           data: data,
@@ -274,7 +275,6 @@ export default () => {
           resourceParent: getTreeParent(values.resourceArray ?? [], 'resource'),
           sort: values.sort ?? 0,
         };
-        console.log(data);
 
         request(`/rbac/role/edit/${values.id}`, {
           method: 'PUT',
@@ -291,7 +291,7 @@ export default () => {
         });
       })
       .catch(info => {
-        console.log('Validate Failed:', info);
+        //console.log('Validate Failed:', info);
       });
   };
 
@@ -482,21 +482,8 @@ export default () => {
       render: (text: any, record: Item) => {
         return (
           <Space size="middle">
-            <a
-              onClick={() => {
-                showEditModal(record);
-              }}
-            >
-              编辑
-            </a>
-            <Popconfirm
-              title="是否删除资源?"
-              onConfirm={() => {
-                deleteRole(record.id);
-              }}
-            >
-              <a style={{ color: 'red' }}>删除</a>
-            </Popconfirm>
+            {editButtonModel(record)}
+            {deleteButtonModel(record.id)}
           </Space>
         );
       },
@@ -557,16 +544,53 @@ export default () => {
     </div>
   );
 
+  const deleteButtonModel = (id: number) => {
+    if (access.rbacRoleDeleteButton) {
+      return (
+        <Popconfirm
+          title="是否删除资源?"
+          onConfirm={() => {
+            deleteRole(id);
+          }}
+        >
+          <a style={{ color: 'red' }}>删除</a>
+        </Popconfirm>
+      );
+    }
+  };
+
+  const editButtonModel = (record: Item) => {
+    if (access.rbacRoleEditButton) {
+      return (
+        <a
+          onClick={() => {
+            showEditModal(record);
+          }}
+        >
+          编辑
+        </a>
+      );
+    }
+  };
+
+  const addButtonModel = () => {
+    if (access.rbacRoleAddButton) {
+      return (
+        <Button
+          style={{ marginBottom: 15 }}
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={showAddModal}
+        >
+          添加角色
+        </Button>
+      );
+    }
+  };
+
   return (
     <div style={{ padding: 12 }}>
-      <Button
-        style={{ marginBottom: 15 }}
-        type="primary"
-        icon={<PlusOutlined />}
-        onClick={showAddModal}
-      >
-        添加角色
-      </Button>
+      {addButtonModel()}
       {addModel}
       {editModel}
       {type === 'simple' ? searchFrom : advanceSearchForm}
