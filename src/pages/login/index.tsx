@@ -11,34 +11,42 @@ import {
 } from '@ant-design/icons';
 import UserLayout from '@/layouts/UserLayout';
 import request from '@/utils/request';
-import { useRequest } from 'ahooks';
+import { useRequest, useLocalStorageState } from 'ahooks';
 
 export default () => {
-  const [rememberPwd, setRememberPwd] = useState(false);
+  const [rememberPwd, setRememberPwd] = useLocalStorageState(
+    'rememberPwd',
+    false,
+  );
   const [loginLoading, setLoginLoading] = useState(false);
+  const [email, setEmail] = useLocalStorageState('email', '');
+  const [password, setPassword] = useLocalStorageState('password', '');
+
   const { initialState, loading, error, refresh, setInitialState } = useModel(
     '@@initialState',
   );
 
-  useEffect(() => {
-    const checked =
-      localStorage.getItem('rememberPwd') === 'true' ? true : false;
-    setRememberPwd(checked);
-  }, []);
+  // useEffect(() => {
+  //   const checked =
+  //     localStorage.getItem('rememberPwd') === 'true' ? true : false;
+  //   setRememberPwd(checked);
+  // }, []);
 
   const checkboxOnChange = (e: {
     target: { checked: React.SetStateAction<boolean> };
   }) => {
     setRememberPwd(e.target.checked);
-    localStorage.setItem('rememberPwd', e.target.checked ? 'true' : 'false');
   };
 
   const onFinish = async (values: any) => {
     setLoginLoading(true);
 
     if (rememberPwd) {
-      localStorage.setItem('email', values.email);
-      localStorage.setItem('password', values.password);
+      setEmail(values.email);
+      setPassword(values.password);
+    } else {
+      setEmail('');
+      setPassword('');
     }
 
     const res = await request('/rbac/user/login', {
@@ -77,7 +85,7 @@ export default () => {
       <Form onFinish={onFinish}>
         <Form.Item
           name="email"
-          initialValue={localStorage.getItem('email') ?? ''}
+          initialValue={email}
           rules={[{ required: true, message: '请输入你的邮箱!' }]}
         >
           <Input
@@ -88,7 +96,7 @@ export default () => {
         </Form.Item>
         <Form.Item
           name="password"
-          initialValue={localStorage.getItem('password') ?? ''}
+          initialValue={password}
           rules={[{ required: true, message: '请输入密码!' }]}
         >
           <Input.Password
