@@ -45,7 +45,7 @@ export async function getInitialState() {
   const res = await request('/rbac/user/getInfo');
 
   if (res.code !== 200) {
-    message.error(res.msg);
+    //message.error(res.msg);
     return;
   }
 
