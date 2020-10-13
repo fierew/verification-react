@@ -82,7 +82,7 @@ request.interceptors.request.use((url, options) => {
   }
 
   return {
-    url: httpUrl + url,
+    url: encodeURI(httpUrl + url),
     options: { ...options, headers: headers, data: data },
   };
 });
