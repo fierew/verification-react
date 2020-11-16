@@ -23,7 +23,7 @@
     "@ant-design/pro-layout": "^5.0.19",
     "@umijs/preset-react": "1.x",
     "@umijs/test": "^3.2.27",
-    "ahooks": "^2.6.0",
+    "ahooks": "^2.9.1",
     "classnames": "^2.2.6",
     "crypto-js": "^4.0.0",
     "lint-staged": "^10.0.7",
@@ -35,6 +35,6 @@
     "yorkie": "^2.0.0"
   },
   "devDependencies": {
-    "@types/crypto-js": "^3.1.47"
+    "@types/crypto-js": "^4.0.1"
   }
 }
